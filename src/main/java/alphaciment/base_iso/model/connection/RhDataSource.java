@@ -9,7 +9,7 @@ public class RhDataSource {
     private static final BasicDataSource rhds = new BasicDataSource();
     
     static{
-        rhds.setUrl("");
+        rhds.setUrl("jdbc:mysql://localhost/base_rh");
         rhds.setUsername("root");
         rhds.setPassword("password");
         rhds.setMinIdle(5);

@@ -1,10 +1,14 @@
 package alphaciment.base_iso.controller;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.ArrayList;
+
+import alphaciment.base_iso.model.object.*;
+
+import alphaciment.base_iso.service.ProcessusService;
 
 @RestController
 @RequestMapping("/test")
@@ -12,9 +16,25 @@ import org.springframework.web.bind.annotation.RestController;
 
 public class AuthentificationController 
 {
+    @Autowired
+    ProcessusService processusService;
+
     @GetMapping("/Hello")
     public String testHello(){
         return("Hello World");
+    }
+
+    @GetMapping("/processus")
+    public List<ProcessusGlobal> testProcess(){
+        List<ProcessusGlobal> liste = new ArrayList<>();
+
+        try{
+            liste = processusService.getAllProcessusGlobal();
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        return liste;
     }
 
     
