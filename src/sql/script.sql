@@ -8,9 +8,11 @@ CREATE TABLE processus_global(
 );
 
 CREATE TABLE processus_lie(
-    id_processus_lie INTEGER,
+    id_processus_lie INT,
+    id_processus_global INTEGER NOT NULL,
     nom TEXT,
-    PRIMARY KEY(id_processus_lie)
+    PRIMARY KEY(id_processus_lie),
+    FOREIGN KEY(id_processus_global) REFERENCES processus_global(id_processus_global) 
 );
 
 CREATE TABLE etat_document(
@@ -29,19 +31,37 @@ CREATE TABLE type_document(
 
 CREATE TABLE document(
     ref_document VARCHAR(80),
-    id_document INT NOT NULL,
-    id_processus_global INT NOT NULL,
-    id_processus_lie INT NOT NULL,
+    id_document INT,
+    titre TEXT,
     id_type INT NOT NULL,
-    date_mise_application DATE,
+    id_entete INT NOT NULL,
+    date_creation DATE,
     confidentiel TINYINT(1),
     id_approbateur BIGINT,
     id_validateur BIGINT,
     PRIMARY KEY(ref_document,id_document),
-    FOREIGN KEY(id_processus_global) REFERENCES processus_global(id_processus_global),
-    FOREIGN KEY(id_processus_lie)REFERENCES processus_lie(id_processus_lie),
     FOREIGN KEY(id_type) REFERENCES type_document(id_type)
 );
+
+CREATE TABLE processus_global_document(
+    ref_document VARCHAR(80),
+    id_document INT NOT NULL,
+    id_processus_global INT NOT NULL,
+    FOREIGN KEY(ref_document) REFERENCES document(ref_document),
+    FOREIGN KEY(id_document) REFERENCES document(id_document),
+    FOREIGN KEY(id_processus_global) REFERENCES processus_global(id_processus_global)
+);
+
+CREATE TABLE processus_lie_document(
+    ref_document VARCHAR(80),
+    id_document INT NOT NULL,
+    id_processus_lie INT NOT NULL,
+    FOREIGN KEY(ref_document) REFERENCES document(ref_document),
+    FOREIGN KEY(id_document) REFERENCES document(id_document),
+    FOREIGN KEY(id_processus_lie) REFERENCES processus_lie(id_processus_lie)
+);
+
+
 
 CREATE TABLE historique_etat(
     id_histo INT NOT NULL AUTO_INCREMENT,
@@ -116,31 +136,31 @@ CREATE TABLE redacteur_document(
 
 -- ### trigger-reference-document ### --
 
+DELIMITER $$
 CREATE TRIGGER before_insert_document
-BEFORE INSERT ON documents
+BEFORE INSERT ON document
 FOR EACH ROW
 BEGIN
   DECLARE last_id INT;
-
-  -- Générer la référence si elle n'existe pas
   IF NEW.ref_document IS NULL THEN
-    SET @type := SUBSTRING(NEW.type_document, 1, 2);
-    SET @processus_id := NEW.id_processus;
+    SET @type := SUBSTRING( (SELECT UPPER(nom) FROM type_document WHERE id_type = NEW.id_type), 1, 2);
+    SET @processus_id := NEW.id_entete;
     SET @date := DATE_FORMAT(NOW(), '%Y%m%d');
-    SET @rang := (SELECT COUNT(*) FROM documents WHERE DATE(created_at) = CURDATE());
+    SET @rang := (SELECT COUNT(*) FROM document WHERE DATE(date_creation) = CURDATE());
     SET NEW.ref_document := CONCAT(@type, @processus_id, '-', @date, '-', LPAD(@rang, 2, '0'));
   END IF;
 
-  -- Incrémenter l'ID en fonction de la référence
   SELECT MAX(id_document) INTO last_id
-  FROM documents
+  FROM document
   WHERE ref_document = NEW.ref_document;
   IF last_id IS NOT NULL THEN
     SET NEW.id_document := last_id + 1;
   ELSE
     SET NEW.id_document := 1;
   END IF;
-END;
+END
+$$
+DELIMITER;
 
 
 
@@ -156,3 +176,20 @@ INSERT INTO processus_global(id_processus_global,nom) VALUES (5100,"Direction Ad
 INSERT INTO processus_global(id_processus_global,nom) VALUES (6000,"Gestion de crise");
 INSERT INTO processus_global(id_processus_global,nom) VALUES (9000,"Surveillance et mesures");
 INSERT INTO processus_global(id_processus_global,nom) VALUES (9200,"Non Conformités");
+
+INSERT INTO type_document(nom) VALUES ("Processus");
+INSERT INTO type_document(nom) VALUES ("Sous Processus");
+INSERT INTO type_document(nom) VALUES ("Fiche d'instruction");
+INSERT INTO type_document(nom) VALUES ("Enregistrement");
+INSERT INTO type_document(nom) VALUES ("Navigateur");
+
+INSERT INTO etat_document(nom) VALUES ("Brouillon");
+INSERT INTO etat_document(nom) VALUES ("Rediger");
+INSERT INTO etat_document(nom) VALUES ("Verifier");
+INSERT INTO etat_document(nom) VALUES ("Approuver");
+INSERT INTO etat_document(nom) VALUES ("Modifier");
+INSERT INTO etat_document(nom) VALUES ("Archive");
+
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1100,1000,"Planification");
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1200,1000,"Revue de direction");
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1300,1000,"Communication");
