@@ -37,6 +37,7 @@ public class DocumentController {
             documentService.addDocument(titre, idType, confid);
             return ResponseEntity.ok("Document ajouté avec succés");
         }catch(Exception e){
+            e.printStackTrace();
             System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }

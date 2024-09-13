@@ -142,12 +142,12 @@ BEFORE INSERT ON document
 FOR EACH ROW
 BEGIN
   DECLARE last_id INT;
-  IF NEW.ref_document IS NULL THEN
+  IF NEW.ref_document = '' THEN
     SET @type := SUBSTRING( (SELECT UPPER(nom) FROM type_document WHERE id_type = NEW.id_type), 1, 2);
     SET @processus_id := NEW.id_entete;
     SET @date := DATE_FORMAT(NOW(), '%Y%m%d');
-    SET @rang := (SELECT COUNT(*) FROM document WHERE DATE(date_creation) = CURDATE());
-    SET NEW.ref_document := CONCAT(@type, @processus_id, '-', @date, '-', LPAD(@rang, 2, '0'));
+    SET @rang := (SELECT COUNT(*)+1 FROM document WHERE DATE(date_creation) = CURDATE());
+    SET NEW.ref_document := CONCAT(CAST(@type AS CHAR CHARACTER SET utf8), CAST(@processus_id AS CHAR CHARACTER SET utf8), '-',CAST(@date AS CHAR CHARACTER SET utf8), '-', CAST(LPAD(@rang, 3, '00') AS CHAR CHARACTER SET utf8));
   END IF;
 
   SELECT MAX(id_document) INTO last_id
@@ -158,7 +158,7 @@ BEGIN
   ELSE
     SET NEW.id_document := 1;
   END IF;
-END
+END;
 $$
 DELIMITER;
 
@@ -193,3 +193,13 @@ INSERT INTO etat_document(nom) VALUES ("Archive");
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1100,1000,"Planification");
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1200,1000,"Revue de direction");
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1300,1000,"Communication");
+
+
+INSERT INTO document(titre,id_type,confidentiel,date_creation,id_entete) VALUES ("Inspection de dépôt",2,0,CURDATE(),2000);
+INSERT INTO document(titre,id_type,confidentiel,date_creation,id_entete) VALUES ("Gestion matériel IT",3,0,CURDATE(),4000)
+
+
+INSERT INTO document(ref_document,titre,id_type,confidentiel,date_creation,id_entete) VALUES ("SO2000-20240912-001","Inspection de dépôt",2,0,CURDATE(),2000)
+
+
+SELECT CONCAT(SUBSTRING("SOUS PROCESSUS",1,2), 4600 , '-', DATE_FORMAT(NOW(), '%Y%m%d') , '-', LPAD(0, 3, '00')) AS REFERENCE;
