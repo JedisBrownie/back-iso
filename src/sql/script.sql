@@ -208,3 +208,22 @@ INSERT INTO processus_global_document VALUES ("SO2000-20240912-001",1,2000);
 INSERT INTO processus_global_document VALUES ("SO2000-20240912-001",1,1000);
 
 INSERT INTO processus_global_document VALUES ("SO2000-20240912-001",2,5000);
+
+
+
+
+
+
+
+-- base rh
+
+CREATE TABLE utilisateur(
+    matricule INT,
+    nom VARCHAR(50),
+    prenom VARCHAR(150),
+    fonction_poste TINYTEXT,
+    service TINYTEXT,
+    lieu_travail VARCHAR(50),
+    email TINYTEXT,
+    PRIMARY KEY(matricule)
+);

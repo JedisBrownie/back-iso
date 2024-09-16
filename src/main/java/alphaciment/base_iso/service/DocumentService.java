@@ -1,10 +1,12 @@
 package alphaciment.base_iso.service;
 
-import java.sql.*;
-import alphaciment.base_iso.model.connection.*;
-import alphaciment.base_iso.model.object.Document;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import alphaciment.base_iso.model.object.iso.Etat;
+import alphaciment.base_iso.repository.iso.EtatRepository;
 
 @Service
 public class DocumentService {
@@ -18,6 +20,17 @@ public class DocumentService {
     //         throw e;
     //     }
     // }
+
+    @Autowired
+    EtatRepository etatRepository;
+
+    public List<Etat> getAllEtats() {
+        return etatRepository.findAll();
+    }
+    
+
+
+
 
 
 }

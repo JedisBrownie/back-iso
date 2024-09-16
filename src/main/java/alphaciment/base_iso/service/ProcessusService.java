@@ -1,16 +1,36 @@
 package alphaciment.base_iso.service;
 
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 
-import alphaciment.base_iso.model.connection.IsoDataSource;
-import alphaciment.base_iso.model.object.ProcessusGlobal;
+import java.util.*;
+
+import alphaciment.base_iso.model.object.iso.ProcessusGlobal;
+import alphaciment.base_iso.repository.iso.ProcessusGlobalRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProcessusService {
+
+    @Autowired
+    ProcessusGlobalRepository processusGlobalRepository;
+
+    // @Qualifier("transactionManagerIso")
+    // private PlatformTransactionManager transactionManager;
+
+    public List<ProcessusGlobal> getAllProcessusGlobal()throws Exception{
+        List<ProcessusGlobal> liste = new ArrayList<>();
+        try{
+            liste =  processusGlobalRepository.findAll();
+        }catch(Exception e){
+            throw e;
+        }
+        return liste;
+    } 
+
+
     
     // public List<ProcessusGlobal> getAllProcessusGlobal() throws Exception{
     //     Connection connection = IsoDataSource.getConnection();

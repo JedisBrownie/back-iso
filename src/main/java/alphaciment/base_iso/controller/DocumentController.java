@@ -21,6 +21,34 @@ public class DocumentController {
     @Autowired
     DocumentService documentService;
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     // @PostMapping("/add")
     // public ResponseEntity<?> add(
     //     @RequestParam(name = "titre") String titre,
