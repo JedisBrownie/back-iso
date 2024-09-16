@@ -21,27 +21,27 @@ public class DocumentController {
     @Autowired
     DocumentService documentService;
     
-    @PostMapping("/add")
-    public ResponseEntity<?> add(
-        @RequestParam(name = "titre") String titre,
-        @RequestParam(name = "type") String type,
-        @RequestParam(name = "confidentiel") String confidentiel )
-    {
-        if(titre.isEmpty() && type.isEmpty() && confidentiel.isEmpty()){
-            return ResponseEntity.badRequest().body("Veuillez remplir tous les champs");
-        }
+    // @PostMapping("/add")
+    // public ResponseEntity<?> add(
+    //     @RequestParam(name = "titre") String titre,
+    //     @RequestParam(name = "type") String type,
+    //     @RequestParam(name = "confidentiel") String confidentiel )
+    // {
+    //     if(titre.isEmpty() && type.isEmpty() && confidentiel.isEmpty()){
+    //         return ResponseEntity.badRequest().body("Veuillez remplir tous les champs");
+    //     }
 
-        int idType = Integer.parseInt(type);
-        int confid = Integer.parseInt(confidentiel);
-        try{
-            documentService.addDocument(titre, idType, confid);
-            return ResponseEntity.ok("Document ajouté avec succés");
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+    //     int idType = Integer.parseInt(type);
+    //     int confid = Integer.parseInt(confidentiel);
+    //     try{
+    //         documentService.addDocument(titre, idType, confid);
+    //         return ResponseEntity.ok("Email envoyé...");
+    //     }catch(Exception e){
+    //         e.printStackTrace();
+    //         System.out.println(e.getMessage());
+    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    //     }
+    // }
 
 
 }

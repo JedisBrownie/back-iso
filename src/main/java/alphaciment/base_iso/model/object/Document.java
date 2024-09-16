@@ -13,6 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
+
 public class Document {
     String referenceDocument;
     int idDocument;

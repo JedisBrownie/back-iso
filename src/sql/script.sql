@@ -164,7 +164,6 @@ DELIMITER;
 
 
 
-
 -- ### données test ### --
 
 INSERT INTO processus_global(id_processus_global,nom) VALUES (1000,"Processus Management");
@@ -203,3 +202,9 @@ INSERT INTO document(ref_document,titre,id_type,confidentiel,date_creation,id_en
 
 
 SELECT CONCAT(SUBSTRING("SOUS PROCESSUS",1,2), 4600 , '-', DATE_FORMAT(NOW(), '%Y%m%d') , '-', LPAD(0, 3, '00')) AS REFERENCE;
+
+
+INSERT INTO processus_global_document VALUES ("SO2000-20240912-001",1,2000);
+INSERT INTO processus_global_document VALUES ("SO2000-20240912-001",1,1000);
+
+INSERT INTO processus_global_document VALUES ("SO2000-20240912-001",2,5000);
