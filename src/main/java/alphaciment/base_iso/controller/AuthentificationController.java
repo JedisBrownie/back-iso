@@ -1,18 +1,21 @@
 package alphaciment.base_iso.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
 
-import alphaciment.base_iso.model.object.iso.Etat;
+import alphaciment.base_iso.model.object.ProcessusGlobal;
+import alphaciment.base_iso.model.object.ProcessusLie;
 import alphaciment.base_iso.service.DocumentService;
 import alphaciment.base_iso.service.EmailService;
 import alphaciment.base_iso.service.ProcessusService;
@@ -37,22 +40,17 @@ public class AuthentificationController
         return("Hello World");
     }
 
-    @GetMapping("/etat")
-    public List<Etat> getAllEtats(){
-        return documentService.getAllEtats();
+    @GetMapping("/processus")
+    public List<ProcessusGlobal> testProcess(){
+        List<ProcessusGlobal> liste = new ArrayList<>();
+
+        try{
+            liste = processusService.getAllProcessusGlobal();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return liste;
     }
-
-    // @GetMapping("/processus")
-    // public List<ProcessusGlobal> testProcess(){
-    //     List<ProcessusGlobal> liste = new ArrayList<>();
-
-    //     try{
-    //         liste = processusService.getAllProcessusGlobal();
-    //     }catch(Exception e){
-    //         e.printStackTrace();
-    //     }
-    //     return liste;
-    // }
 
     @PostMapping("/email")
     public ResponseEntity<?> email(
@@ -70,21 +68,36 @@ public class AuthentificationController
     }
 
 
-    // @GetMapping("/find")
-    // public List<ProcessusGlobal> find(
-    //     @RequestParam(name = "reference") String reference,
-    //     @RequestParam(name = "id") String id
-    // ){
-    //     List<ProcessusGlobal> liste = new ArrayList<>();
-    //     try{
-    //         int idDocument = Integer.parseInt(id);
-    //         liste = processusService.findProcessusOfDocument(reference, idDocument);
-    //     }catch(Exception e){
-    //         e.printStackTrace();
-    //     }
-    //     return liste;
-    // }
+    @GetMapping("/find")
+    public List<ProcessusGlobal> find(
+        @RequestParam(name = "reference") String reference,
+        @RequestParam(name = "id") String id
+    ){
+        List<ProcessusGlobal> liste = new ArrayList<>();
+        try{
+            int idDocument = Integer.parseInt(id);
+            liste = processusService.findProcessusOfDocument(reference, idDocument);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return liste;
+    }
 
+    @GetMapping("/findpl")
+    public List<ProcessusLie> findPl(
+        @RequestParam(name = "reference") String reference,
+        @RequestParam(name = "id") String id
+    ){
+        List<ProcessusLie> liste = new ArrayList<>();
+        try{
+            int idDocument = Integer.parseInt(id);
+            liste = processusService.findProcessusLieOfDocument(reference, idDocument);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return liste;
+    }
+    
 
     
 

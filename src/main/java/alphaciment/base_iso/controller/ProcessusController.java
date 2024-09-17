@@ -1,5 +1,8 @@
 package alphaciment.base_iso.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,10 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import alphaciment.base_iso.model.object.ProcessusGlobal;
 import alphaciment.base_iso.service.ProcessusService;
-
-import java.util.*;
-import alphaciment.base_iso.model.object.iso.*;
 
 @RestController
 @RequestMapping("/processus")
@@ -22,15 +23,18 @@ public class ProcessusController {
     ProcessusService processusService;
 
     @GetMapping("/global/all")
-    public List<ProcessusGlobal> getAllPg(){
+    public List<ProcessusGlobal> getAllProcessusGlobal(){
         List<ProcessusGlobal> liste = new ArrayList<>();
-        try {
+        try{
             liste = processusService.getAllProcessusGlobal();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        }catch(Exception e){
+            e.printStackTrace();
         }
         return liste;
     }
+
+    
+    
 
     
     

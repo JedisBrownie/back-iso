@@ -73,7 +73,9 @@ CREATE TABLE historique_etat(
     motif TEXT,
     PRIMARY KEY (id_histo),
     FOREIGN KEY(ref_document) REFERENCES document(ref_document),
-    FOREIGN KEY(id_document) REFERENCES document(id_document)
+    FOREIGN KEY(id_document) REFERENCES document(id_document),
+    FOREIGN KEY(id_utilisateur) REFERENCES base_rh.utilisateur(matricule),
+    FOREIGN KEY(id_etat) REFERENCES etat(id_etat)
 );
 
 -- ### document/personne ### --
@@ -192,27 +194,56 @@ INSERT INTO etat_document(nom) VALUES ("Archive");
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1100,1000,"Planification");
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1200,1000,"Revue de direction");
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1300,1000,"Communication");
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (2100,2000,"Ressources humaines");
+
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (2300,2000,"Travaux neufs");
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (2400,2000,"Système documentaire");
+
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4111,4000,"Extraction matières premières");
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4121,4000,"Cru blanc");
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4122,4000,"Cru noir");
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4130,4000,"Cuisson");
+
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5110,5000,"Achats biens et services");
 
 
-INSERT INTO document(titre,id_type,confidentiel,date_creation,id_entete) VALUES ("Inspection de dépôt",2,0,CURDATE(),2000);
-INSERT INTO document(titre,id_type,confidentiel,date_creation,id_entete) VALUES ("Gestion matériel IT",3,0,CURDATE(),4000)
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("NA1100-20240515-1",1,"Système de management environnemental",5,0,"2024-05-15");
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("PR1100-20240316-1",1,"Procédure de sécurisation des matières premières",1,0,"2024-03-16");
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("FI1100-20220905-1",1,"Gestion des changements",3,0,"2022-09-05");
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("EN1100-20220605-1",1,"Analyse des risques Ibity",4,0,"2022-06-05");
+
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("PR1300-20230922-1",1,"Communication",1,0,"2023-09-22");
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("FI1300-20230211-1",1,"Demande de support en communication",3,0,"2023-02-11");
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("EN1300-20220812-1",1,"Analise des risques Ibity",4,0,"2022-08-12");
+
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("FI2100-20230908-1",1,"Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga",3,0,"2023-09-08");
 
 
-INSERT INTO document(ref_document,titre,id_type,confidentiel,date_creation,id_entete) VALUES ("SO2000-20240912-001","Inspection de dépôt",2,0,CURDATE(),2000)
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("NA1100-20240515-1",1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("PR1100-20240316-1",1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("FI1100-20220905-1",1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("EN1100-20220605-1",1,1000);
+
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("PR1300-20230922-1",1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("FI1300-20230211-1",1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("EN1300-20220812-1",1,1000);
+
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("FI2100-20230908-1",1,2000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("FI2100-20230908-1",1,5000);
 
 
-SELECT CONCAT(SUBSTRING("SOUS PROCESSUS",1,2), 4600 , '-', DATE_FORMAT(NOW(), '%Y%m%d') , '-', LPAD(0, 3, '00')) AS REFERENCE;
 
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("NA1100-20240515-1",1,1100);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("PR1100-20240316-1",1,1100);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("FI1100-20220905-1",1,1100);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("EN1100-20220605-1",1,1100);
 
-INSERT INTO processus_global_document VALUES ("SO2000-20240912-001",1,2000);
-INSERT INTO processus_global_document VALUES ("SO2000-20240912-001",1,1000);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("PR1300-20230922-1",1,1300);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("FI1300-20230211-1",1,1300);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("EN1300-20220812-1",1,1300);
 
-INSERT INTO processus_global_document VALUES ("SO2000-20240912-001",2,5000);
-
-
-
-
-
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("FI2100-20230908-1",1,2100);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("FI2100-20230908-1",1,5110);
 
 
 -- base rh
@@ -227,3 +258,34 @@ CREATE TABLE utilisateur(
     email TINYTEXT,
     PRIMARY KEY(matricule)
 );
+
+SELECT pg.id_processus_global,pg.nom 
+FROM processus_global_document pgd 
+JOIN processus_global pg ON pg.id_processus_global = pgd.id_processus_global 
+WHERE pgd.ref_document = ? AND pgd.id_document = ?
+
+
+SELECT *
+FROM processus_lie_document pld 
+JOIN processus_lie pl ON pl.id_processus_lie = pld.id_processus_lie 
+WHERE pld.ref_document = "FI4000-20240917-002" AND pld.id_document = 1; 
+
+
+-- INSERT INTO document(ref_document,titre,id_type,confidentiel,date_creation,id_entete) VALUES ("SO2000-20240917-001","Inspection de dépôt",2,0,CURDATE(),2000);
+
+
+-- SELECT CONCAT(SUBSTRING("SOUS PROCESSUS",1,2), 4600 , '-', DATE_FORMAT(NOW(), '%Y%m%d') , '-', LPAD(0, 3, '00')) AS REFERENCE;
+
+
+-- INSERT INTO processus_global_document VALUES ("SO2000-20240917-001",1,2000);
+-- INSERT INTO processus_global_document VALUES ("SO2000-20240917-001",1,1000);
+
+-- INSERT INTO processus_global_document VALUES ("SO2000-20240917-001",2,5000);
+
+
+-- INSERT INTO processus_lie_document VALUES ("FI4000-20240917-002",1,1100);
+-- INSERT INTO processus_lie_document VALUES ("FI4000-20240917-002",1,1300);
+-- INSERT INTO processus_lie_document VALUES ("SO2000-20240917-001",1,1200);
+
+
+SELECT 

@@ -1,13 +1,9 @@
-package alphaciment.base_iso.model.object.iso;
+package alphaciment.base_iso.model.object;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-import alphaciment.base_iso.model.object.rh.Utilisateur;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,26 +13,19 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-
-@Entity
-@IdClass(DocumentKey.class)
 public class Document {
-    @Id
     String referenceDocument;
-
-    @Id
     int idDocument;
-    
     String titreDocument;
     TypeDocument type;
     int confidentiel;
 
-    List<ProcessusGlobal> processusGlobal;
-    List<ProcessusLie> processusLie;
-    
     Utilisateur approbateur;
     Utilisateur verificateur;
 
+    List<ProcessusGlobal> processusGlobal;
+    List<ProcessusLie> processusLie;
+    
     List<Utilisateur> redacteur;
     List<Utilisateur> lecteur;
     List<Utilisateur> diffusionEmail;
