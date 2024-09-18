@@ -185,11 +185,14 @@ INSERT INTO type_document(nom) VALUES ("Enregistrement");
 INSERT INTO type_document(nom) VALUES ("Navigateur");
 
 INSERT INTO etat_document(nom) VALUES ("Brouillon");
-INSERT INTO etat_document(nom) VALUES ("Rediger");
-INSERT INTO etat_document(nom) VALUES ("Verifier");
-INSERT INTO etat_document(nom) VALUES ("Approuver");
-INSERT INTO etat_document(nom) VALUES ("Modifier");
-INSERT INTO etat_document(nom) VALUES ("Archive");
+INSERT INTO etat_document(nom) VALUES ("Redaction");
+INSERT INTO etat_document(nom) VALUES ("Invalidation");
+INSERT INTO etat_document(nom) VALUES ("Validation");
+INSERT INTO etat_document(nom) VALUES ("Désapprobation");
+INSERT INTO etat_document(nom) VALUES ("Approbation");
+INSERT INTO etat_document(nom) VALUES ("Demande révision");
+INSERT INTO etat_document(nom) VALUES ("Modifiable");
+INSERT INTO etat_document(nom) VALUES ("Archives");
 
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1100,1000,"Planification");
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1200,1000,"Revue de direction");
