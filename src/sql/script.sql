@@ -21,6 +21,9 @@ CREATE TABLE etat_document(
     PRIMARY KEY(id_etat)
 );
 
+ALTER TABLE etat_document ADD COLUMN status VARCHAR(30);
+ALTER TABLE etat_document ADD COLUMN description VARCHAR(30);
+
 CREATE TABLE type_document(
     id_type INT NOT NULL AUTO_INCREMENT,
     nom VARCHAR(90),
@@ -40,7 +43,9 @@ CREATE TABLE document(
     id_approbateur BIGINT,
     id_validateur BIGINT,
     PRIMARY KEY(ref_document,id_document),
-    FOREIGN KEY(id_type) REFERENCES type_document(id_type)
+    FOREIGN KEY(id_type) REFERENCES type_document(id_type),
+    FOREIGN KEY(id_approbateur) REFERENCE base_rh.utilisateur(matricule),
+    FOREIGN KEY(id_validateur) REFERENCE base_rh.utilisateur(matricule)
 );
 
 CREATE TABLE processus_global_document(
@@ -62,9 +67,8 @@ CREATE TABLE processus_lie_document(
 );
 
 
-
 CREATE TABLE historique_etat(
-    id_histo INT NOT NULL AUTO_INCREMENT,
+    id_histo VARCHAR(80),
     ref_document VARCHAR(80),
     id_document INT NOT NULL,
     id_etat INT NOT NULL,
@@ -85,7 +89,8 @@ CREATE TABLE pilote_document(
     id_document INT NOT NULL,
     id_utilisateur BIGINT NOT NULL,
     FOREIGN KEY(ref_document) REFERENCES document(ref_document),
-    FOREIGN KEY(id_document) REFERENCES document(id_document)
+    FOREIGN KEY(id_document) REFERENCES document(id_document),
+    FOREIGN KEY(id_utilisateur) REFERENCES base_rh.utilisateur(matricule)
 );
 
 CREATE TABLE diffusion_email(
@@ -93,19 +98,22 @@ CREATE TABLE diffusion_email(
     id_document INT NOT NULL,
     id_utilisateur BIGINT NOT NULL,
     FOREIGN KEY(ref_document) REFERENCES document(ref_document),
-    FOREIGN KEY(id_document) REFERENCES document(id_document)
+    FOREIGN KEY(id_document) REFERENCES document(id_document),
+    FOREIGN KEY(id_utilisateur) REFERENCES base_rh.utilisateur(matricule)
 );
 
 CREATE TABLE lecteur_document(
     ref_document BIGINT NOT NULL,
     id_utilisateur BIGINT NOT NULL,
-    FOREIGN KEY(ref_document) REFERENCES document(ref_document)
+    FOREIGN KEY(ref_document) REFERENCES document(ref_document),
+    FOREIGN KEY(id_utilisateur) REFERENCES base_rh.utilisateur(matricule)
 );
 
 CREATE TABLE redacteur_document(
     ref_document BIGINT NOT NULL,
     id_utilisateur BIGINT NOT NULL,
-    FOREIGN KEY(ref_document) REFERENCES document(ref_document)
+    FOREIGN KEY(ref_document) REFERENCES document(ref_document),
+    FOREIGN KEY(id_utilisateur) REFERENCES base_rh.utilisateur(matricule)
 );
 
 
@@ -119,6 +127,7 @@ CREATE TABLE redacteur_document(
 -- );
 
 -- CREATE TABLE champ_document(
+--     ref_document VARCHAR(80) NOT NULL,
 --     id_document INT NOT NULL,
 --     id_champ INT NOT NULL,
 --     affichable INT, 
@@ -128,7 +137,7 @@ CREATE TABLE redacteur_document(
 -- );
 
 -- CREATE TABLE fichier_document(
---     ref_document BITINT NOT NULL,
+--     ref_document VARCHAR(80) NOT NULL,
 --     id_document INT NOT NULL,
 --     emplacement TEXT,
 --     nom TEXT,
@@ -164,7 +173,36 @@ END;
 $$
 DELIMITER;
 
+-- ### trigger prod ### --
 
+DELIMITER $$
+CREATE TRIGGER before_insert_historique
+BEFORE INSERT ON historique_etat
+FOR EACH ROW
+BEGIN
+    SET @type := 'HE';
+    SET @date := DATE_FORMAT(NOW(), '%Y%m%d');
+    SET @rang := (SELECT COUNT(*)+1 FROM historique_etat WHERE DATE(date_heure_etat) = CURDATE());
+    SET NEW.id_histo := CONCAT(CAST(@type AS CHAR CHARACTER SET utf8),'-',CAST(@date AS CHAR CHARACTER SET utf8),'-', CAST(LPAD(@rang, 3, '00') AS CHAR CHARACTER SET utf8));
+END;
+$$
+DELIMITER
+
+
+-- ### trigger données test ### --
+
+-- DELIMITER $$
+-- CREATE TRIGGER before_insert_historique
+-- BEFORE INSERT ON historique_etat
+-- FOR EACH ROW
+-- BEGIN
+--     SET @type := 'HE';
+--     SET @date := DATE_FORMAT(NEW.date_heure_etat, '%Y%m%d');
+--     SET @rang := (SELECT COUNT(*)+1 FROM historique_etat WHERE DATE(date_heure_etat) = DATE(NEW.date_heure_etat));
+--     SET NEW.id_histo := CONCAT(CAST(@type AS CHAR CHARACTER SET utf8),'-',CAST(@date AS CHAR CHARACTER SET utf8),'-', CAST(LPAD(@rang, 3, '00') AS CHAR CHARACTER SET utf8));
+-- END;
+-- $$
+-- DELIMITER
 
 -- ### données test ### --
 
@@ -217,9 +255,10 @@ INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_cr
 
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("PR1300-20230922-1",1,"Communication",1,0,"2023-09-22");
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("FI1300-20230211-1",1,"Demande de support en communication",3,0,"2023-02-11");
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("EN1300-20220812-1",1,"Analise des risques Ibity",4,0,"2022-08-12");
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("EN1300-20220812-1",1,"Directive sur la communication",4,0,"2022-08-12");
 
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("FI2100-20230908-1",1,"Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga",3,0,"2023-09-08");
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("FI2100-20230908-1",2,"Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga",3,1,"2024-01-15");
 
 
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("NA1100-20240515-1",1,1000);
@@ -233,6 +272,9 @@ INSERT INTO processus_global_document(ref_document,id_document,id_processus_glob
 
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("FI2100-20230908-1",1,2000);
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("FI2100-20230908-1",1,5000);
+
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("FI2100-20230908-1",2,5000);
+
 
 
 
@@ -248,6 +290,56 @@ INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VA
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("FI2100-20230908-1",1,2100);
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("FI2100-20230908-1",1,5110);
 
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("FI2100-20230908-1",2,5110);
+
+
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("PR1100-20240316-1",1,1,80682,"2024-03-01 08:30","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("PR1100-20240316-1",1,2,80682,"2024-03-03 08:20","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("PR1100-20240316-1",1,4,80246,"2024-03-06 07:45","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("PR1100-20240316-1",1,5,24566,"2024-03-06 12:30","Manques d'information");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("PR1100-20240316-1",1,1,80682,"2024-03-06 12:30","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("PR1100-20240316-1",1,2,80682,"2024-03-10 10:20","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("PR1100-20240316-1",1,4,80246,"2024-03-13 17:45","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("PR1100-20240316-1",1,6,24566,"2024-03-16 08:00","");
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI1100-20220905-1",1,2,78542,"2022-08-31 14:45","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI1100-20220905-1",1,4,80682,"2022-09-02 08:20","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI1100-20220905-1",1,6,24566,"2022-09-05 10:20","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI1100-20220905-1",1,7,78542,"2022-10-17 10:20","Mise à jour");
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("EN1100-20220605-1",1,2,78542,"2022-08-12 08:20","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("EN1100-20220605-1",1,6,78542,"2022-08-12 08:20","");
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("NA1100-20240515-1",1,1,80682,"2024-05-06 08:20","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("NA1100-20240515-1",1,2,80682,"2024-05-15 08:20","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("NA1100-20240515-1",1,6,80682,"2024-05-15 08:20","");
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("PR1300-20230922-1",1,2,78542,"2023-09-19 08:20","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("PR1300-20230922-1",1,4,80246,"2023-09-20 08:20","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("PR1300-20230922-1",1,6,24566,"2023-09-22 10:20","");
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI1300-20230211-1",1,2,80682,"2023-02-03 08:20","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI1300-20230211-1",1,4,80246,"2023-02-08 09:20","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI1300-20230211-1",1,6,24566,"2023-02-11 10:20","");
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("EN1300-20220812-1",1,1,80246,"2022-08-22 08:00","");
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI2100-20230908-1",1,2,80682,"2023-09-01 08:00","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI2100-20230908-1",1,4,80246,"2023-09-04 08:00","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI2100-20230908-1",1,6,24566,"2023-09-08 08:00","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI2100-20230908-1",1,7,80682,"2023-11-20 17:00","Mise à jour partenaires");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI2100-20230908-1",1,8,24566,"2023-11-21 17:00","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI2100-20230908-1",1,9,24566,"2024-01-15 08:00","");
+
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI2100-20230908-1",2,2,80682,"2024-01-01 08:00","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI2100-20230908-1",2,4,80246,"2024-01-12 08:00","");
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("FI2100-20230908-1",2,6,24566,"2024-01-15 08:00","");
+
+
+
+
 
 -- base rh
 
@@ -262,6 +354,12 @@ CREATE TABLE utilisateur(
     PRIMARY KEY(matricule)
 );
 
+INSERT INTO utilisateur(matricule,prenom,fonction_poste,service,lieu_travail) VALUES (80682,"Mika","Planificateur Logistique","Logistique","SIEGE");
+INSERT INTO utilisateur(matricule,prenom,fonction_poste,service,lieu_travail) VALUES (80246,"Michou","Chef de service dépot","Logistique","SIEGE");
+INSERT INTO utilisateur(matricule,prenom,fonction_poste,service,lieu_travail) VALUES (78542,"Rindra","Chef de service planification","Logistique","SIEGE");
+INSERT INTO utilisateur(matricule,prenom,fonction_poste,service,lieu_travail) VALUES (24566,"Dominique","Directeur General","Finance et Gestion","SIEGE");
+
+
 SELECT pg.id_processus_global,pg.nom 
 FROM processus_global_document pgd 
 JOIN processus_global pg ON pg.id_processus_global = pgd.id_processus_global 
@@ -274,21 +372,42 @@ JOIN processus_lie pl ON pl.id_processus_lie = pld.id_processus_lie
 WHERE pld.ref_document = "FI4000-20240917-002" AND pld.id_document = 1; 
 
 
--- INSERT INTO document(ref_document,titre,id_type,confidentiel,date_creation,id_entete) VALUES ("SO2000-20240917-001","Inspection de dépôt",2,0,CURDATE(),2000);
+
+-- ### vue ### --
+SELECT he.id_histo,he.ref_document,he.id_document,dc.titre,et.nom,ut.prenom,he.date_heure_etat,he.motif
+FROM base_iso.historique_etat he 
+JOIN base_iso.etat_document et ON  he.id_etat = et.id_etat
+JOIN base_rh.utilisateur ut ON he.id_utilisateur = ut.matricule
+JOIN base_iso.document dc ON  he.ref_document = dc.ref_document AND he.id_document = dc.id_document
+GROUP BY he.id_histo,he.ref_document,he.id_document,dc.titre,et.nom
+ORDER BY date_heure_etat ASC
 
 
--- SELECT CONCAT(SUBSTRING("SOUS PROCESSUS",1,2), 4600 , '-', DATE_FORMAT(NOW(), '%Y%m%d') , '-', LPAD(0, 3, '00')) AS REFERENCE;
+-- SELECT he.id_histo,he.ref_document,he.id_document,dc.titre,et.nom,ut.prenom,he.date_heure_etat,he.motif
+-- FROM base_iso.historique_etat he 
+-- JOIN base_iso.etat_document et ON  he.id_etat = et.id_etat
+-- JOIN base_rh.utilisateur ut ON he.id_utilisateur = ut.matricule
+-- JOIN base_iso.document dc ON  he.ref_document = dc.ref_document AND he.id_document = dc.id_document
+-- WHERE he.ref_document = "FI2100-20230908-1"
+-- ORDER BY he.date_heure_etat ASC
+
+UPDATE historique_etat SET date_heure_etat = "2022-08-16 09:00" WHERE id_histo = "HE-20220831-001"
 
 
--- INSERT INTO processus_global_document VALUES ("SO2000-20240917-001",1,2000);
--- INSERT INTO processus_global_document VALUES ("SO2000-20240917-001",1,1000);
-
--- INSERT INTO processus_global_document VALUES ("SO2000-20240917-001",2,5000);
-
-
--- INSERT INTO processus_lie_document VALUES ("FI4000-20240917-002",1,1100);
--- INSERT INTO processus_lie_document VALUES ("FI4000-20240917-002",1,1300);
--- INSERT INTO processus_lie_document VALUES ("SO2000-20240917-001",1,1200);
+---- ### applicable ### ----
+    
+    
 
 
-SELECT 
+SELECT h1.id_histo,h2.ref_document,h2.id_document,h1.id_etat, h1.date_heure_etat
+FROM historique_etat h1
+JOIN (
+    SELECT MAX(id_histo)as id_histo,ref_document,id_document,MAX(date_heure_etat) AS date_plus_récente
+    FROM historique_etat
+    GROUP BY ref_document,id_document
+    ORDER BY id_histo DESC
+) h2 
+ON h1.id_histo = h2.id_histo 
+AND h1.date_heure_etat = h2.date_plus_récente;
+
+
