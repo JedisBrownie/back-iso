@@ -44,8 +44,8 @@ CREATE TABLE document(
     id_validateur BIGINT,
     PRIMARY KEY(ref_document,id_document),
     FOREIGN KEY(id_type) REFERENCES type_document(id_type),
-    FOREIGN KEY(id_approbateur) REFERENCE base_rh.utilisateur(matricule),
-    FOREIGN KEY(id_validateur) REFERENCE base_rh.utilisateur(matricule)
+    FOREIGN KEY(id_approbateur) REFERENCES base_rh.utilisateur(matricule),
+    FOREIGN KEY(id_validateur) REFERENCES base_rh.utilisateur(matricule)
 );
 
 CREATE TABLE processus_global_document(
@@ -396,7 +396,18 @@ UPDATE historique_etat SET date_heure_etat = "2022-08-16 09:00" WHERE id_histo =
 
 ---- ### applicable ### ----
     
-    
+
+CREATE OR REPLACE VIEW v_document_etat AS(
+    SELECT h1.id_histo,h2.ref_document,h2.id_document,h1.id_etat, h1.date_heure_etat
+    FROM historique_etat h1
+    JOIN (
+        SELECT MAX(id_histo)as id_histo,ref_document,id_document,MAX(date_heure_etat) AS date_plus_récente
+        FROM historique_etat
+        GROUP BY ref_document,id_document
+        ORDER BY id_histo DESC
+    ) h2 
+    ON h1.id_histo = h2.id_histo
+);
 
 
 SELECT h1.id_histo,h2.ref_document,h2.id_document,h1.id_etat, h1.date_heure_etat
