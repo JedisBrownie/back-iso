@@ -1,5 +1,9 @@
 package alphaciment.base_iso.model.viewmodel;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -12,7 +16,60 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ViewTypeDocument {
-    int idDocument;
-    String nomDocument;
-    List<ViewTypeDocument> listeDocument;
+    int idTypeDocument;
+    String nomTypeDocument;
+    List<ViewDocument> listeDocument;
+
+    public ViewTypeDocument(int idDocument,String nom){
+        this.setIdTypeDocument(idDocument);
+        this.setNomTypeDocument(nom);
+    }
+
+
+    public List<ViewTypeDocument> getViewTypeDocumentApplicable(int idProcessusLie,Connection connection) throws Exception{
+        List<ViewTypeDocument> liste = new ArrayList<>();
+        String sql = "SELECT vda.id_type,td.nom " + 
+                        "FROM v_document_applicable vda " + 
+                        "JOIN processus_lie_document pld ON pld.ref_document = vda.ref_document AND pld.id_document = vda.id_document " + 
+                        "JOIN type_document td ON td.id_type = vda.id_type " +
+                        "WHERE pld.id_processus_lie = ? " +
+                        "GROUP BY vda.id_type,td.nom";
+
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try{
+            statement = connection.prepareStatement(sql);
+            statement.setInt(1, idProcessusLie);
+
+            rs = statement.executeQuery();
+
+            while(rs.next()){
+                int type = rs.getInt("id_type");
+                String nomType = rs.getString("nom");
+                ViewTypeDocument viewType = new ViewTypeDocument(type, nomType);
+                liste.add(viewType);                
+            }
+
+            statement.close();
+            rs.close();
+        } catch (Exception e) {
+            throw e;
+        }finally{
+            if(statement != null){
+                statement.close();
+            }
+            if(rs != null){
+                rs.close();
+            }
+        }
+
+        for(ViewTypeDocument vd : liste){
+            vd.setListeDocument(new ViewDocument().getViewDocumentsApplicable(idProcessusLie, vd.getIdTypeDocument(), connection));
+        }
+
+        return liste;
+    }
+
+
+
 }

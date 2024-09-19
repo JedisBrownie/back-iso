@@ -20,9 +20,8 @@ CREATE TABLE etat_document(
     nom VARCHAR(50),
     PRIMARY KEY(id_etat)
 );
-
 ALTER TABLE etat_document ADD COLUMN status VARCHAR(30);
-ALTER TABLE etat_document ADD COLUMN description VARCHAR(30);
+
 
 CREATE TABLE type_document(
     id_type INT NOT NULL AUTO_INCREMENT,
@@ -38,7 +37,8 @@ CREATE TABLE document(
     titre TEXT,
     id_type INT NOT NULL,
     id_entete INT NOT NULL,
-    date_creation DATE,
+    date_mise_application DATE,
+    date_archive DATE,
     confidentiel TINYINT(1),
     id_approbateur BIGINT,
     id_validateur BIGINT,
@@ -232,6 +232,17 @@ INSERT INTO etat_document(nom) VALUES ("Demande révision");
 INSERT INTO etat_document(nom) VALUES ("Modifiable");
 INSERT INTO etat_document(nom) VALUES ("Archives");
 
+UPDATE etat_document SET status = "Brouillon" WHERE id_etat = 1;
+UPDATE etat_document SET status = "En cours de vérification" WHERE id_etat = 2;
+UPDATE etat_document SET status = "Non validé" WHERE id_etat = 3;
+UPDATE etat_document SET status = "En cours d'approbation" WHERE id_etat = 4;
+UPDATE etat_document SET status = "Non approuvé" WHERE id_etat = 5;
+UPDATE etat_document SET status = "Applicable" WHERE id_etat = 6;
+UPDATE etat_document SET status = "Applicable" WHERE id_etat = 7;
+UPDATE etat_document SET status = "Applicable" WHERE id_etat = 8;
+UPDATE etat_document SET status = "Archive" WHERE id_etat = 9;
+
+
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1100,1000,"Planification");
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1200,1000,"Revue de direction");
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1300,1000,"Communication");
@@ -248,23 +259,29 @@ INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4130
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5110,5000,"Achats biens et services");
 
 
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("NA1100-20240515-1",1,"Système de management environnemental",5,0,"2024-05-15");
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("PR1100-20240316-1",1,"Procédure de sécurisation des matières premières",1,0,"2024-03-16");
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("FI1100-20220905-1",1,"Gestion des changements",3,0,"2022-09-05");
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("EN1100-20220605-1",1,"Analyse des risques Ibity",4,0,"2022-06-05");
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_mise_application) VALUES ("NA1100-20240515-1",1,"Système de management environnemental",5,0,"2024-05-15",);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_mise_application,id_approbateur,id_validateur) VALUES ("PR1100-20240316-1",1,"Procédure de sécurisation des matières premières",1,0,"2024-03-16",80682,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_mise_application,id_approbateur,id_validateur) VALUES ("FI1100-20220905-1",1,"Gestion des changements",3,0,"2022-09-05",80682,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_mise_application) VALUES ("EN1100-20220605-1",1,"Analyse des risques Ibity",4,0,"2022-06-05");
 
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("PR1300-20230922-1",1,"Communication",1,0,"2023-09-22");
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("FI1300-20230211-1",1,"Demande de support en communication",3,0,"2023-02-11");
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("EN1300-20220812-1",1,"Directive sur la communication",4,0,"2022-08-12");
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_mise_application) VALUES ("EN1100-20221208-1",1,"Analyse des risques dépôts",4,1,"2022-12-08");
 
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("FI2100-20230908-1",1,"Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga",3,0,"2023-09-08");
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ("FI2100-20230908-1",2,"Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga",3,1,"2024-01-15");
 
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_mise_application,id_approbateur,id_validateur) VALUES ("PR1300-20230922-1",1,"Communication",1,0,"2023-09-22",78542,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_mise_application,id_approbateur,id_validateur) VALUES ("FI1300-20230211-1",1,"Demande de support en communication",3,0,"2023-02-11",80682,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_mise_application) VALUES ("EN1300-20220812-1",1,"Directive sur la communication",4,0,"2022-08-12");
+
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_mise_application,id_approbateur,id_validateur) VALUES ("FI2100-20230908-1",1,"Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga",3,0,"2023-09-08",78542,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_mise_application,id_approbateur,id_validateur) VALUES ("FI2100-20230908-1",2,"Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga",3,1,"2024-01-15",78542,24566);
+
+UPDATE document SET date_archive = "2024-01-15" WHERE ref_document = "FI2100-20230908-1" AND id_document = 1;
 
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("NA1100-20240515-1",1,1000);
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("PR1100-20240316-1",1,1000);
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("FI1100-20220905-1",1,1000);
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("EN1100-20220605-1",1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("EN1100-20221208-1",1,1000);
+
 
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("PR1300-20230922-1",1,1000);
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("FI1300-20230211-1",1,1000);
@@ -273,7 +290,7 @@ INSERT INTO processus_global_document(ref_document,id_document,id_processus_glob
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("FI2100-20230908-1",1,2000);
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("FI2100-20230908-1",1,5000);
 
-INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("FI2100-20230908-1",2,5000);
+-- INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ("FI2100-20230908-1",2,5000);
 
 
 
@@ -282,6 +299,8 @@ INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VA
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("PR1100-20240316-1",1,1100);
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("FI1100-20220905-1",1,1100);
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("EN1100-20220605-1",1,1100);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("EN1100-20221208-1",1,1100);
+
 
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("PR1300-20230922-1",1,1300);
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("FI1300-20230211-1",1,1300);
@@ -290,6 +309,7 @@ INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VA
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("FI2100-20230908-1",1,2100);
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("FI2100-20230908-1",1,5110);
 
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("FI2100-20230908-1",2,2110);
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ("FI2100-20230908-1",2,5110);
 
 
@@ -310,6 +330,9 @@ INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date
 
 INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("EN1100-20220605-1",1,2,78542,"2022-08-12 08:20","");
 INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("EN1100-20220605-1",1,6,78542,"2022-08-12 08:20","");
+
+-- INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("EN1100-20221208-1",1,6,78542,"2022-08-13 08:20","");
+
 
 INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("NA1100-20240515-1",1,1,80682,"2024-05-06 08:20","");
 INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES("NA1100-20240515-1",1,2,80682,"2024-05-15 08:20","");
@@ -372,7 +395,6 @@ JOIN processus_lie pl ON pl.id_processus_lie = pld.id_processus_lie
 WHERE pld.ref_document = "FI4000-20240917-002" AND pld.id_document = 1; 
 
 
-
 -- ### vue ### --
 SELECT he.id_histo,he.ref_document,he.id_document,dc.titre,et.nom,ut.prenom,he.date_heure_etat,he.motif
 FROM base_iso.historique_etat he 
@@ -397,28 +419,133 @@ UPDATE historique_etat SET date_heure_etat = "2022-08-16 09:00" WHERE id_histo =
 ---- ### applicable ### ----
     
 
-CREATE OR REPLACE VIEW v_document_etat AS(
-    SELECT h1.id_histo,h2.ref_document,h2.id_document,h1.id_etat, h1.date_heure_etat
-    FROM historique_etat h1
-    JOIN (
-        SELECT MAX(id_histo)as id_histo,ref_document,id_document,MAX(date_heure_etat) AS date_plus_récente
-        FROM historique_etat
-        GROUP BY ref_document,id_document
-        ORDER BY id_histo DESC
-    ) h2 
-    ON h1.id_histo = h2.id_histo
-);
-
-
-SELECT h1.id_histo,h2.ref_document,h2.id_document,h1.id_etat, h1.date_heure_etat
-FROM historique_etat h1
-JOIN (
+CREATE OR REPLACE VIEW v_etat_recent AS(
     SELECT MAX(id_histo)as id_histo,ref_document,id_document,MAX(date_heure_etat) AS date_plus_récente
     FROM historique_etat
     GROUP BY ref_document,id_document
     ORDER BY id_histo DESC
-) h2 
-ON h1.id_histo = h2.id_histo 
-AND h1.date_heure_etat = h2.date_plus_récente;
+);
+
+CREATE OR REPLACE VIEW v_nombre_revision AS(
+    SELECT ver.ref_document,COUNT(*) AS nombre_revision 
+    FROM v_etat_recent ver 
+    JOIN historique_etat h1 
+        ON h1.id_histo = ver.id_histo
+    WHERE h1.id_etat = 9
+    GROUP by ver.ref_document
+);
+
+
+CREATE OR REPLACE VIEW v_document AS(
+    SELECT h1.id_histo,ver.ref_document,ver.id_document,dc.titre,h1.id_etat as etat,h1.date_heure_etat,dc.confidentiel,COALESCE(vnb.nombre_revision,0) as nombre_revision,
+    CASE
+        WHEN h1.id_etat = 8 THEN 1
+        ELSE 0
+    END as modifiable,
+    CASE
+        WHEN h1.id_etat = ed.id_etat THEN ed.status
+    END as status
+    FROM historique_etat h1
+    JOIN v_etat_recent ver 
+        ON h1.id_histo = ver.id_histo
+    JOIN etat_document ed 
+        ON ed.id_etat = h1.id_etat
+    JOIN document dc 
+        ON dc.ref_document = ver.ref_document AND dc.id_document = ver.id_document
+    LEFT JOIN v_nombre_revision vnb 
+        ON vnb.ref_document = ver.ref_document
+);
+
+CREATE OR REPLACE VIEW v_document_applicable AS(
+    SELECT vd.ref_document,vd.id_document,dc.id_type,vd.titre,vd.etat,dc.date_mise_application,vd.confidentiel,vd.nombre_revision,vd.modifiable,vd.status
+    FROM v_document vd 
+    JOIN document dc
+        ON dc.ref_document = vd.ref_document AND dc.id_document = vd.id_document
+    GROUP BY ref_document,id_document
+    HAVING etat >= 6 AND etat <= 8
+);
+
+CREATE OR REPLACE VIEW v_document_en_cours AS (
+    SELECT vd.ref_document,vd.id_document,dc.id_type,vd.titre,vd.etat,dc.date_mise_application,vd.confidentiel,vd.nombre_revision,vd.modifiable,vd.status
+    FROM v_document vd 
+    JOIN document dc
+        ON dc.ref_document = vd.ref_document AND dc.id_document = vd.id_document
+    GROUP BY ref_document,id_document
+    HAVING etat < 6
+);
+
+
+
+SELECT *
+FROM v_document_en_cours vd 
+JOIN 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT vda.ref_document,vda.id_document,vda.id_type,td.nom,pld.id_processus_lie
+FROM v_document_applicable vda 
+JOIN processus_lie_document pld ON pld.ref_document = vda.ref_document AND pld.id_document = vda.id_document
+JOIN type_document td ON td.id_type = vda.id_type
+WHERE pld.id_processus_lie = 1100;
+
+
+SELECT vda.id_type,td.nom
+FROM v_document_applicable vda 
+JOIN processus_lie_document pld ON pld.ref_document = vda.ref_document AND pld.id_document = vda.id_document
+JOIN type_document td ON td.id_type = vda.id_type
+WHERE pld.id_processus_lie = 1100
+GROUP BY vda.id_type,td.nom;
+
+
+-- 
+SELECT vda.ref_document,vda.id_document,vda.id_type,vda.titre,vda.etat,vda.date_mise_application,vda.confidentiel,vda.nombre_revision,vda.modifable,vda.status
+FROM v_document_applicable vda 
+JOIN processus_lie_document pld ON pld.ref_document = vda.ref_document AND pld.id_document = vda.id_document
+WHERE pld.id_processus_lie = 1100 AND vda.id_type = 4;
+
+
+
+SELECT pg.id_processus_global,pg.nom as nom_processus_global,pl.id_processus_lie,pl.nom as nom_processus_lie
+FROM processus_global pg 
+JOIN processus_lie pl
+ON pg.id_processus_global = pl.id_processus_global 
+WHERE pl.id_processus_lie = 1100
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

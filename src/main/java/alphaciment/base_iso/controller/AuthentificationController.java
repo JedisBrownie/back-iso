@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import alphaciment.base_iso.model.object.ProcessusGlobal;
 import alphaciment.base_iso.model.object.ProcessusLie;
+import alphaciment.base_iso.model.viewmodel.ViewListFromType;
 import alphaciment.base_iso.service.DocumentService;
 import alphaciment.base_iso.service.EmailService;
 import alphaciment.base_iso.service.ProcessusService;
+import alphaciment.base_iso.service.ViewModelService;
 
 @RestController
 @RequestMapping("/test")
@@ -34,6 +36,9 @@ public class AuthentificationController
 
     @Autowired
     DocumentService documentService;
+
+    @Autowired
+    ViewModelService viewModelService;
 
     @GetMapping("/Hello")
     public String testHello(){
@@ -98,6 +103,21 @@ public class AuthentificationController
         return liste;
     }
     
+
+    @GetMapping("/liste")
+    public ViewListFromType getDocumentApplicable(
+        @RequestParam(name="processus_lie") String processusLie
+    ){
+        ViewListFromType liste = new ViewListFromType();
+        try {
+            int idProcessusLie = Integer.parseInt(processusLie);
+            liste = viewModelService.getAllDocumentApplicable(idProcessusLie);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return  liste;
+    }
 
     
 
