@@ -23,7 +23,7 @@ public class HistoriqueEtat {
     String motif;
 
 
-    public void addHistoriqueEtat(String refDocument,int idDocument,int idEtat,int idUtilisateur,String motif,Connection connection) throws Exception{
+    public void saveHistoriqueEtat(String refDocument,int idDocument,int idEtat,int idUtilisateur,String motif,Connection connection) throws Exception{
         String sql = "INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif) VALUES (?,?,?,?,CURRENT_TIMESTAMP(),?)";
         PreparedStatement statement = null;
         try {
@@ -43,9 +43,17 @@ public class HistoriqueEtat {
                 statement.close();
             }
         }
+
     }
 
-    
+    public int findUtilisateurValiderRedaction(String ref_document,int id_document,Connection connection){
+        int idUtilisateur = 0;
+
+        String sql = "SELECT * FROM historique_etat WHERE ";
+
+        return idUtilisateur;
+    }
+
 
 
 

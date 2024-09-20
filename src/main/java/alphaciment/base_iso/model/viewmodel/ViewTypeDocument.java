@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -63,9 +64,23 @@ public class ViewTypeDocument {
             }
         }
 
-        for(ViewTypeDocument vd : liste){
-            vd.setListeDocument(new ViewDocument().getViewDocumentsApplicable(idProcessusLie, vd.getIdTypeDocument(), connection));
-        }
+        // for(ViewTypeDocument vd : liste){
+        //     vd.setListeDocument(new ViewDocument().getViewDocumentsApplicable(idProcessusLie, vd.getIdTypeDocument(), connection));
+        // }
+
+        // List<Document> 
+
+        // ViewDocument vdc =  new ViewDocument(reference, idDoc, titre, dateApplication, nbRevision, status, confidentiel, modifiable);
+
+        List<ViewDocument> listeDoc = new ViewDocument().getAllDocumentsApplicable(idProcessusLie, connection);
+
+        liste.forEach(inListe -> {
+            List<ViewDocument> listeDocuments = listeDoc.stream()
+                    .filter(doc -> doc.getTypeDocument() == inListe.getIdTypeDocument())
+                    .map(doc -> new ViewDocument(doc.getReferenceDocument(),doc.getIdDocument(),doc.getNom(),doc.getDateApplication(),doc.getNombreRevision(),doc.getStatus(),doc.getConfidentiel(),doc.getModification()))
+                    .collect(Collectors.toList());
+            inListe.setListeDocument(listeDocuments);
+        });
 
         return liste;
     }

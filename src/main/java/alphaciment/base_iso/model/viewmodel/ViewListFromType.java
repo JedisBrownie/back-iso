@@ -33,11 +33,7 @@ public class ViewListFromType {
         ViewListFromType type = new ViewListFromType();
         PreparedStatement statement = null;
         ResultSet rs = null;
-        String sql = "SELECT pg.id_processus_global,pg.nom as nom_processus_global,pl.id_processus_lie,pl.nom as nom_processus_lie " + 
-                        "FROM processus_global pg " + 
-                        "JOIN processus_lie pl " + 
-                        "ON pg.id_processus_global = pl.id_processus_global " + 
-                        "WHERE pl.id_processus_lie = ?";
+        String sql = "SELECT * FROM v_processus vp WHERE vp.id_processus_lie = ?";
         try{
             statement = connection.prepareStatement(sql);
             statement.setInt(1, idProcessusLie);
