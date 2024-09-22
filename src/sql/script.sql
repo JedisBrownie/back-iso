@@ -67,7 +67,6 @@ CREATE TABLE processus_lie_document(
     FOREIGN KEY(id_processus_lie) REFERENCES processus_lie(id_processus_lie)
 );
 
-
 CREATE TABLE historique_etat(
     id_histo VARCHAR(80),
     ref_document VARCHAR(80),
@@ -149,6 +148,31 @@ CREATE TABLE redacteur_document(
 -- );
 
 -- ### trigger-reference-document ### --
+
+CREATE TRIGGER before_insert_document
+BEFORE INSERT ON documents
+FOR EACH ROW
+BEGIN
+  DECLARE last_id INT;
+
+  IF NEW.ref_document IS NULL THEN
+    SET @type := SUBSTRING(NEW.type_document, 1, 2);
+    SET @processus_id := NEW.id_processus;
+    SET @date := DATE_FORMAT(NOW(), '%Y%m%d');
+    SET @rang := (SELECT COUNT(*) FROM documents WHERE DATE(created_at) = CURDATE());
+    SET NEW.ref_document := CONCAT(@type, @processus_id, '-', @date, '-', LPAD(@rang, 2, '0'));
+  END IF;
+
+  SELECT MAX(id_document) INTO last_id
+  FROM documents
+  WHERE ref_document = NEW.ref_document;
+  IF last_id IS NOT NULL THEN
+    SET NEW.id_document := last_id + 1;
+  ELSE
+    SET NEW.id_document := 1;
+  END IF;
+END;
+
 
 
 -- ### trigger prod ### --

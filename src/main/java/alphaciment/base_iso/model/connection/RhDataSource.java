@@ -20,8 +20,8 @@ public class RhDataSource {
     private static final BasicDataSource rhds = new BasicDataSource();
 
     static{
-        rhds.setUrl("jdbc:mysql://localhost/base_rh");
-        rhds.setUsername("root");
+        rhds.setUrl("jdbc:postgresql://localhost:5432/base_rh");
+        rhds.setUsername("postgres");
         rhds.setPassword("root");
         rhds.setMinIdle(10);
         rhds.setMaxIdle(25);

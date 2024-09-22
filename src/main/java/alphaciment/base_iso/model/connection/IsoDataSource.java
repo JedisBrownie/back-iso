@@ -20,8 +20,8 @@ public class IsoDataSource {
     private static final BasicDataSource isods = new BasicDataSource();
 
     static{
-        isods.setUrl("jdbc:mysql://localhost/base_iso");
-        isods.setUsername("root");
+        isods.setUrl("jdbc:postgresql://localhost:5432/base_iso");
+        isods.setUsername("postgres");
         isods.setPassword("root");
         isods.setMinIdle(10);
         isods.setMaxIdle(25);
