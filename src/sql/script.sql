@@ -431,6 +431,10 @@ ORDER BY date_heure_etat ASC
 
 UPDATE historique_etat SET date_heure_etat = "2022-08-16 09:00" WHERE id_histo = "HE-20220831-001"
 
+    SELECT MAX(id_histo)as id_histo,ref_document,id_document,MAX(date_heure_etat) AS date_plus_récente
+    FROM historique_etat
+    GROUP BY ref_document,id_document
+    ORDER BY id_histo DESC
 
 ---- ### applicable ### ----
     

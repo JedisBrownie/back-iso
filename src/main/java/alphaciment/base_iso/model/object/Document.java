@@ -18,7 +18,7 @@ public class Document {
     int idDocument;
     String titreDocument;
     TypeDocument type;
-    int confidentiel;
+    boolean confidentiel;
 
     Utilisateur approbateur;
     Utilisateur verificateur;
@@ -32,14 +32,14 @@ public class Document {
 
 
 
-    public void addDocument(String titre,int idProcessusGlobal,int type,int confidentiel,Connection connection) throws Exception{
+    public void addDocument(String titre,int idProcessusGlobal,int type,boolean confidentiel,Connection connection) throws Exception{
 
-        String sql = "INSERT INTO DOCUMENT(titre,id_type,confidentiel,date_creation,id_entete) VALUES (?,?,?,CURDATE(),?)";
+        String sql = "INSERT INTO DOCUMENT(titre,id_type,confidentiel,date_creation,id_entete) VALUES (?,?,?,CURRENT_DATE,?)";
 
         try(PreparedStatement statement = connection.prepareStatement(sql) ){
             statement.setString(1,titre);
             statement.setInt(2, type);
-            statement.setInt(3, confidentiel);
+            statement.setBoolean(3, confidentiel);
             statement.setInt(4,idProcessusGlobal);
 
             statement.executeUpdate();

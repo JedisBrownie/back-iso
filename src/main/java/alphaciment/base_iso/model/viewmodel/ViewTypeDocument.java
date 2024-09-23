@@ -77,7 +77,7 @@ public class ViewTypeDocument {
         liste.forEach(inListe -> {
             List<ViewDocument> listeDocuments = listeDoc.stream()
                     .filter(doc -> doc.getTypeDocument() == inListe.getIdTypeDocument())
-                    .map(doc -> new ViewDocument(doc.getReferenceDocument(),doc.getIdDocument(),doc.getNom(),doc.getDateApplication(),doc.getNombreRevision(),doc.getStatus(),doc.getConfidentiel(),doc.getModification()))
+                    .map(doc -> new ViewDocument(doc.getReferenceDocument(),doc.getIdDocument(),doc.getNom(),doc.getDateApplication(),doc.getNombreRevision(),doc.getStatus(),doc.confidentiel,doc.modification))
                     .collect(Collectors.toList());
             inListe.setListeDocument(listeDocuments);
         });

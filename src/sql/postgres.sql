@@ -2,41 +2,47 @@ CREATE DATABASE base_iso;
 \c base_iso;
 
 CREATE TABLE PROCESSUS_GLOBAL(
-    id_processus_global INTEGER,
-    nom VARCHAR(90),
-    PRIMARY KEY(id_processus_global)
+    id_processus_global INTEGER NOT NULL PRIMARY KEY,
+    nom VARCHAR(90)
 );
 
 CREATE TABLE PROCESSUS_LIE(
-    id_processus_lie INT,
+    id_processus_lie INTEGER NOT NULL PRIMARY KEY,
     id_processus_global INTEGER NOT NULL,
     nom TEXT,
-    PRIMARY KEY(id_processus_lie),
     FOREIGN KEY(id_processus_global) REFERENCES processus_global(id_processus_global) 
 );
 
 CREATE TABLE ETAT_DOCUMENT(
-    id_etat SERIAL,
+    id_etat SERIAL PRIMARY KEY,
     nom VARCHAR(50),
-    status VARCHAR(30),
-    PRIMARY KEY(id_etat)
+    status VARCHAR(30)
 );
 
 CREATE TABLE TYPE_DOCUMENT(
-    id_type SERIAL,
-    nom VARCHAR(90),
-    PRIMARY KEY(id_type)
+    id_type SERIAL PRIMARY KEY,
+    nom VARCHAR(90)
 );
 
--- ### document ### --
+-- ### connection base rh ### --
 
+SELECT dblink_connect('base_rh_connection','dbname=base_rh port=5432 host=localhost user=postgres password=root');
+
+-- SELECT dblink_disconnect('base_rh_connection');
+
+-- ### document ### --
+CREATE VIEW v_utilisateur AS(
+    SELECT *
+    FROM dblink('base_rh_connection','SELECT matricule,nom,prenom,fonction_poste,service,lieu_travail,email FROM UTILISATEUR')
+    AS tb2(matricule int,nom varchar(50),prenom varchar(150),fonction_poste text,service text,lieu_travail varchar(50),email text)
+);
 
 CREATE TABLE DOCUMENT(
     ref_document VARCHAR(80),
     id_document INT,
     titre TEXT,
     id_type INT NOT NULL,
-    id_entete INT NOT NULL,
+    id_entete INT,
     date_creation DATE,
     date_mise_application DATE,
     date_archive DATE,
@@ -51,8 +57,7 @@ CREATE TABLE PROCESSUS_GLOBAL_DOCUMENT(
     ref_document VARCHAR(80),
     id_document INT NOT NULL,
     id_processus_global INT NOT NULL,
-    FOREIGN KEY(ref_document) REFERENCES document(ref_document),
-    FOREIGN KEY(id_document) REFERENCES document(id_document),
+    FOREIGN KEY(ref_document,id_document) REFERENCES document(ref_document,id_document),
     FOREIGN KEY(id_processus_global) REFERENCES processus_global(id_processus_global)
 );
 
@@ -60,25 +65,208 @@ CREATE TABLE PROCESSUS_LIE_DOCUMENT(
     ref_document VARCHAR(80),
     id_document INT NOT NULL,
     id_processus_lie INT NOT NULL,
-    FOREIGN KEY(ref_document) REFERENCES document(ref_document),
-    FOREIGN KEY(id_document) REFERENCES document(id_document),
+    FOREIGN KEY(ref_document,id_document) REFERENCES document(ref_document,id_document),
     FOREIGN KEY(id_processus_lie) REFERENCES processus_lie(id_processus_lie)
 );
 
 CREATE TABLE HISTORIQUE_ETAT(
-    id_histo VARCHAR(80),
+    id_histo VARCHAR(80) PRIMARY KEY,
     ref_document VARCHAR(80),
     id_document INT NOT NULL,
     id_etat INT NOT NULL,
     id_utilisateur BIGINT NOT NULL,
     date_heure_etat TIMESTAMP,
     motif TEXT,
-    PRIMARY KEY (id_histo),
-    FOREIGN KEY(ref_document) REFERENCES document(ref_document),
-    FOREIGN KEY(id_document) REFERENCES document(id_document),
-    FOREIGN KEY(id_utilisateur) REFERENCES base_rh.utilisateur(matricule),
-    FOREIGN KEY(id_etat) REFERENCES etat(id_etat)
+    FOREIGN KEY(ref_document,id_document) REFERENCES document(ref_document,id_document),
+    FOREIGN KEY(id_etat) REFERENCES etat_document(id_etat)
 );
+
+-- ### document/personne ### --
+
+CREATE TABLE PILOTE_DOCUMENT(
+    ref_document VARCHAR(80),
+    id_document INT NOT NULL,
+    id_utilisateur BIGINT NOT NULL,
+    FOREIGN KEY(ref_document,id_document) REFERENCES document(ref_document,id_document)
+);
+
+CREATE TABLE DIFFUSION_EMAIL(
+    ref_document VARCHAR(80)
+    id_document INT NOT NULL,
+    id_utilisateur BIGINT NOT NULL,
+    FOREIGN KEY(ref_document,id_document) REFERENCES document(ref_document,id_document)
+);
+
+CREATE TABLE LECTEUR_DOCUMENT(
+    ref_document VARCHAR(80),
+    id_document INT NOT NULL,
+    id_utilisateur BIGINT NOT NULL,
+    FOREIGN KEY(ref_document,id_document) REFERENCES document(ref_document,id_document)
+);
+
+CREATE TABLE REDACTEUR_DOCUMENT(
+    ref_document VARCHAR(80),
+    id_document INT NOT NULL,
+    id_utilisateur BIGINT NOT NULL,
+    FOREIGN KEY(ref_document,id_document) REFERENCES document(ref_document,id_document)
+);
+
+-- ### document/contenu ### --
+
+-- CREATE TABLE CHAMP(
+--     id_champ SERIAL,
+--     nom VARCHAR(30),
+--     obligatoire BOOLEAN
+--     PRIMARY KEY(id_champ)
+-- );
+
+-- CREATE TABLE CHAMP_DOCUMENT(
+--     ref_document VARCHAR(80) NOT NULL,
+--     id_document INT NOT NULL,
+--     id_champ INT NOT NULL,
+--     affichable INT, 
+--     valeur TEXT,
+--     FOREIGN KEY(id_document) REFERENCES document(id_document),
+--     FOREIGN KEY(id_champ) REFERENCES champ(id_champ)
+-- );
+
+-- CREATE TABLE FICHIER_DOCUMENT(
+--     ref_document VARCHAR(80) NOT NULL,
+--     id_document INT NOT NULL,
+--     emplacement TEXT,
+--     nom TEXT,
+--     FOREIGN KEY(id_document) REFERENCES document(id_document),
+--     FOREIGN KEY(ref_document) REFERENCES document(ref_document),     
+-- );
+
+-- ## trigger ## --
+    -- CREATE TRIGGER trg_check_approbateur_validateur
+    -- BEFORE INSERT ON document
+    -- FOR EACH ROW
+    -- BEGIN
+    -- IF NOT EXISTS (SELECT 1 FROM v_utilisateur WHERE matricule = NEW.id_approbateur) THEN
+    --     RAISE EXCEPTION 'L''approbateur spécifié n''existe pas';
+    -- END IF;
+
+    -- IF NOT EXISTS (SELECT 1 FROM v_utilisateur WHERE matricule = NEW.id_validateur) THEN
+    --     RAISE EXCEPTION 'Le validateur spécifié n''existe pas';
+    -- END IF;
+    -- RETURN NEW;
+    -- END;
+
+
+-- ## trigger generate reference on document ##--
+    CREATE OR REPLACE FUNCTION generate_reference_document()
+    RETURNS TRIGGER AS $$
+    
+    DECLARE last_id INT;
+    DECLARE type_code TEXT;
+    DECLARE process_id INT;
+    DECLARE date_now TEXT;
+    DECLARE document_rank INT;
+    BEGIN
+
+        IF NEW.ref_document IS NULL THEN
+            type_code := SUBSTRING((SELECT UPPER(nom) FROM TYPE_DOCUMENT WHERE id_type = NEW.id_type), 1, 2);
+            process_id := NEW.id_entete;
+            date_now := TO_CHAR(NOW(), 'YYYYMMDD');
+            document_rank := (SELECT COUNT(*)+1 FROM document WHERE DATE(date_creation) = CURRENT_DATE);
+            NEW.ref_document := type_code || process_id || '-' || date_now || '-' || LPAD(document_rank::text, 3, '00');
+        END IF;
+
+        SELECT MAX(id_document) INTO last_id
+        FROM document
+        WHERE ref_document = NEW.ref_document;
+
+        IF last_id IS NOT NULL THEN
+            NEW.id_document := last_id + 1;
+        ELSE
+            NEW.id_document := 1;
+        END IF;
+
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER trg_before_insert_document
+    BEFORE INSERT ON document
+    FOR EACH ROW
+    EXECUTE FUNCTION generate_reference_document();
+    
+-- ## trigger generate reference on historique(prod)##--
+
+    -- CREATE OR REPLACE FUNCTION generate_reference_historique()
+    -- RETURNS TRIGGER AS $$
+    -- DECLARE type_code TEXT;
+    -- DECLARE date_now TEXT;
+    -- DECLARE document_rank INT;
+    -- BEGIN
+    --     type_code := 'HE';
+    --     date_now := TO_CHAR(NOW(), 'YYYYMMDD');
+    --     document_rank := (SELECT COUNT(*) + 1 FROM historique_etat WHERE DATE(date_heure_etat) = CURRENT_DATE);
+    --     NEW.id_histo := type_code || '-' || date_now || '-' || LPAD(document_rank::text, 3, '00');
+
+    --     RETURN NEW;
+    -- END;
+    -- $$ LANGUAGE plpgsql;
+
+    -- CREATE TRIGGER trg_before_insert_historique
+    -- BEFORE INSERT ON historique_etat
+    -- FOR EACH ROW
+    -- EXECUTE FUNCTION generate_reference_historique();
+    
+
+-- ## trigger generate reference on historique(test)##--
+
+    CREATE OR REPLACE FUNCTION generate_reference_historique()
+    RETURNS TRIGGER AS $$
+    DECLARE type_code TEXT;
+    DECLARE date_now TEXT;
+    DECLARE document_rank INT;
+    BEGIN
+        type_code := 'HE';
+        date_now := TO_CHAR(NEW.date_heure_etat, 'YYYYMMDD');
+        document_rank := (SELECT COUNT(*) + 1 FROM historique_etat WHERE DATE(date_heure_etat) = DATE(NEW.date_heure_etat));
+        NEW.id_histo := type_code || '-' || date_now || '-' || LPAD(document_rank::text, 3, '00');
+
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER trg_before_insert_historique
+    BEFORE INSERT ON historique_etat
+    FOR EACH ROW
+    EXECUTE FUNCTION generate_reference_historique();
+    
+
+
+
+-- ## trigger verif utilisateur ##--
+    -- CREATE OR REPLACE FUNCTION check_utilisateur(text_exception TEXT)
+    -- RETURN TRIGGER AS $$
+    -- BEGIN 
+    --     IF NOT EXISTS(SELECT 1 FROM v_utilisateur WHERE matricule = NEW.id_utilisateur)THEN
+    --         RAISE EXCEPTION text_exception;
+    --     END IF;
+    -- END;
+    -- $$ LANGUAGE plpgsql;
+
+
+
+    -- CREATE TRIGGER trg_check_pilote_document
+    -- BEFORE INSERT ON pilote_document
+    -- FOR EACH ROW
+    -- EXECUTE FUNCTION check_utilisateur('Le pilote spécifié est introuvable.');
+
+    -- CREATE TRIGGER trg_check_redacteur_document
+    -- BEFORE INSERT ON redacteur_document
+    -- FOR EACH ROW
+    -- EXECUTE FUNCTION check_utilisateur('Le rédacteur spécifié est introuvable.');
+
+    -- CREATE TRIGGER trg_check_lecteur_document
+    -- BEFORE INSERT ON lecteur_document
+    -- FOR EACH ROW
+    -- EXECUTE FUNCTION check_utilisateur('Le lecteur spécifié est introuvable.');
 
 -- ### données test ### --
 
@@ -121,60 +309,174 @@ INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4130
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5110,5000,'Achats biens et services');
 
 
-CREATE VIEW v_utilisateur AS(
-    SELECT *
-    FROM dblink('base_rh_connection','SELECT matricule,nom,prenom,fonction_poste,service,lieu_travail,email FROM UTILISATEUR')
-    AS tb2(matricule int,nom varchar(50),prenom varchar(150),fonction_poste text,service text,lieu_travail varchar(50),email text)
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application) VALUES ('NA1100-20240515-1',1,'Système de management environnemental',5,false,'2024-04-15','2024-05-15');
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,id_validateur,id_approbateur) VALUES ('PR1100-20240316-1',1,'Procédure de sécurisation des matières premières',1,false,'2024-02-16',80682,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI1100-20220905-1',1,'Gestion des changements',3,false,'2022-08-05','2022-09-05',80682,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application) VALUES ('EN1100-20220605-1',1,'Analyse des risques Ibity',4,false,'2022-05-05','2022-06-05');
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application) VALUES ('EN1100-20221208-1',1,'Analyse des risques dépôts',4,true,'2022-11-08','2022-12-08');
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('PR1300-20230922-1',1,'Communication',1,false,'2023-08-22','2023-09-22',78542,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI1300-20230211-1',1,'Demande de support en communication',3,false,'2023-01-11','2023-02-11',80682,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ('EN1300-20220812-1',1,'Directive sur la communication',4,false,'2022-07-22');
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,date_archive,id_validateur,id_approbateur) VALUES ('FI2100-20230908-1',1,'Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga',3,false,'2023-08-08','2023-09-08','2023-12-15',78542,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI2100-20230908-1',2,'Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga',3,true,'2023-12-15','2024-01-15',78542,24566);
+
+
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('NA1100-20240515-1',1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('PR1100-20240316-1',1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('FI1100-20220905-1',1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('EN1100-20220605-1',1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('EN1100-20221208-1',1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('PR1300-20230922-1',1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('FI1300-20230211-1',1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('EN1300-20220812-1',1,1000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('FI2100-20230908-1',1,2000);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('FI2100-20230908-1',1,5000);
+-- INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('FI2100-20230908-1',2,5000);
+
+
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('NA1100-20240515-1',1,1100);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('PR1100-20240316-1',1,1100);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI1100-20220905-1',1,1100);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('EN1100-20220605-1',1,1100);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('EN1100-20221208-1',1,1100);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('PR1300-20230922-1',1,1300);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI1300-20230211-1',1,1300);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('EN1300-20220812-1',1,1300);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI2100-20230908-1',1,2100);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI2100-20230908-1',1,5110);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI2100-20230908-1',2,2100);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI2100-20230908-1',2,5110);
+
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('PR1100-20240316-1',1,1,80682,'2024-03-01 08:30','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('PR1100-20240316-1',1,2,80682,'2024-03-03 08:20','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('PR1100-20240316-1',1,4,80246,'2024-03-06 07:45','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('PR1100-20240316-1',1,5,24566,'2024-03-06 12:30','Manques d''information');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('PR1100-20240316-1',1,1,80682,'2024-03-06 12:30','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('PR1100-20240316-1',1,2,80682,'2024-03-10 10:20','');
+-- INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('PR1100-20240316-1',1,4,80246,'2024-03-13 17:45','');
+-- INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('PR1100-20240316-1',1,6,24566,'2024-03-16 08:00','');
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI1100-20220905-1',1,2,78542,'2022-08-31 14:45','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI1100-20220905-1',1,4,80682,'2022-09-02 08:20','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI1100-20220905-1',1,6,24566,'2022-09-05 10:20','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI1100-20220905-1',1,7,78542,'2022-10-17 10:20','Mise à jour');
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('EN1100-20220605-1',1,2,78542,'2022-08-12 08:20','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('EN1100-20220605-1',1,6,78542,'2022-08-12 08:20','');
+
+-- INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('EN1100-20221208-1',1,6,78542,'2022-08-13 08:20','');
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('NA1100-20240515-1',1,1,80682,'2024-05-06 08:20','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('NA1100-20240515-1',1,2,80682,'2024-05-15 08:20','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('NA1100-20240515-1',1,6,80682,'2024-05-15 08:20','');
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('PR1300-20230922-1',1,2,78542,'2023-09-19 08:20','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('PR1300-20230922-1',1,4,80246,'2023-09-20 08:20','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('PR1300-20230922-1',1,6,24566,'2023-09-22 10:20','');
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI1300-20230211-1',1,2,80682,'2023-02-03 08:20','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI1300-20230211-1',1,4,80246,'2023-02-08 09:20','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI1300-20230211-1',1,6,24566,'2023-02-11 10:20','');
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('EN1300-20220812-1',1,1,80246,'2022-08-12 08:00','');
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI2100-20230908-1',1,2,80682,'2023-09-01 08:00','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI2100-20230908-1',1,4,80246,'2023-09-04 08:00','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI2100-20230908-1',1,6,24566,'2023-09-08 08:00','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI2100-20230908-1',1,7,80682,'2023-11-20 17:00','Mise à jour partenaires');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI2100-20230908-1',1,8,24566,'2023-11-21 17:00','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI2100-20230908-1',1,9,24566,'2024-01-15 08:00','');
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI2100-20230908-1',2,2,80682,'2024-01-01 08:00','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI2100-20230908-1',2,4,80246,'2024-01-12 08:00','');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)VALUES('FI2100-20230908-1',2,6,24566,'2024-01-15 08:00','');
+
+
+INSERT INTO redacteur_document(ref_document,id_document,id_utilisateur) VALUES ('PR1100-20240306-1',1,80682);
+INSERT INTO redacteur_document(ref_document,id_document,id_utilisateur) VALUES ('FI1100-20220905-1',1,78542);
+INSERT INTO redacteur_document(ref_document,id_document,id_utilisateur) VALUES ('EN1100-20220605-1',1,80682);
+INSERT INTO redacteur_document(ref_document,id_document,id_utilisateur) VALUES ('EN1100-20220605-1',1,78542);
+INSERT INTO redacteur_document(ref_document,id_document,id_utilisateur) VALUES ('NA1100-20240515-1',1,80682);
+INSERT INTO redacteur_document(ref_document,id_document,id_utilisateur) VALUES ('PR1300-20230922-1',1,78542);
+INSERT INTO redacteur_document(ref_document,id_document,id_utilisateur) VALUES ('FI1300-20230211-1',1,80682);
+INSERT INTO redacteur_document(ref_document,id_document,id_utilisateur) VALUES ('EN1300-20220812-1',1,80246);
+INSERT INTO redacteur_document(ref_document,id_document,id_utilisateur) VALUES ('EN1300-20220812-1',1,78542);
+INSERT INTO redacteur_document(ref_document,id_document,id_utilisateur) VALUES ('FI2100-20230908-1',1,80682);
+INSERT INTO redacteur_document(ref_document,id_document,id_utilisateur) VALUES ('FI2100-20230908-1',2,80682);
+
+-- ### vue ### --
+
+SELECT he.id_histo,he.ref_document,he.id_document,dc.titre,et.nom,ut.prenom,he.date_heure_etat,he.motif
+FROM historique_etat he 
+JOIN etat_document et ON  he.id_etat = et.id_etat
+JOIN v_utilisateur ut ON he.id_utilisateur = ut.matricule
+JOIN document dc ON  he.ref_document = dc.ref_document AND he.id_document = dc.id_document
+GROUP BY he.id_histo,he.ref_document,he.id_document,dc.titre,et.nom,ut.prenom,he.date_heure_etat,he.motif
+ORDER BY date_heure_etat ASC
+
+-- UPDATE historique_etat SET date_heure_etat = "2022-08-16 09:00" WHERE id_histo = "HE-20220831-001"
+
+
+---- ### applicable ### ----
+
+CREATE OR REPLACE VIEW v_etat_recent AS(
+    SELECT MAX(id_histo)as id_histo,ref_document,id_document,MAX(date_heure_etat) AS date_plus_récente
+    FROM historique_etat
+    GROUP BY ref_document,id_document
+    ORDER BY id_histo DESC
 );
 
--- ## trigger ## --
-CREATE OR REPLACE FUNCTION check_approbateur_validateur()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM v_utilisateur WHERE id = NEW.id_approbateur) THEN
-    RAISE EXCEPTION 'L''approbateur spécifié n''existe pas dans la vue v_utilisateur';
-  END IF;
+CREATE OR REPLACE VIEW v_nombre_revision AS(
+    SELECT ver.ref_document,COUNT(*) AS nombre_revision 
+    FROM v_etat_recent ver 
+    JOIN historique_etat h1 
+        ON h1.id_histo = ver.id_histo
+    WHERE h1.id_etat = 9
+    GROUP by ver.ref_document
+);
 
-  IF NOT EXISTS (SELECT 1 FROM v_utilisateur WHERE id = NEW.id_validateur) THEN
-    RAISE EXCEPTION 'Le validateur spécifié n''existe pas dans la vue v_utilisateur';
-  END IF;
+CREATE OR REPLACE VIEW v_processus AS(
+    SELECT pg.id_processus_global,pg.nom as nom_processus_global,pl.id_processus_lie,pl.nom as nom_processus_lie
+    FROM processus_global pg 
+    JOIN processus_lie pl
+    ON pg.id_processus_global = pl.id_processus_global
+);
 
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+CREATE OR REPLACE VIEW v_document AS(
+    SELECT h1.id_histo,ver.ref_document,ver.id_document,dc.titre,h1.id_etat as etat,h1.date_heure_etat,dc.confidentiel,COALESCE(vnb.nombre_revision,0) as nombre_revision,
+    CASE
+        WHEN h1.id_etat = 8 THEN 1
+        ELSE 0
+    END as modifiable,
+    CASE
+        WHEN h1.id_etat = ed.id_etat THEN ed.status
+    END as status
+    FROM historique_etat h1
+    JOIN v_etat_recent ver 
+        ON h1.id_histo = ver.id_histo
+    JOIN etat_document ed 
+        ON ed.id_etat = h1.id_etat
+    JOIN document dc 
+        ON dc.ref_document = ver.ref_document AND dc.id_document = ver.id_document
+    LEFT JOIN v_nombre_revision vnb 
+        ON vnb.ref_document = ver.ref_document
+);
 
-CREATE TRIGGER trg_check_approbateur_validateur_before_insert
-BEFORE INSERT ON document
-FOR EACH ROW
-EXECUTE FUNCTION check_approbateur_validateur();
+CREATE OR REPLACE VIEW v_document_applicable AS(
+    SELECT vd.ref_document,vd.id_document,dc.id_type,vd.titre,vd.etat,dc.date_mise_application,vd.confidentiel,vd.nombre_revision,vd.modifiable,vd.status
+    FROM v_document vd 
+    JOIN document dc
+        ON dc.ref_document = vd.ref_document AND dc.id_document = vd.id_document
+    GROUP BY vd.ref_document,vd.id_document,dc.id_type,vd.titre,vd.etat,dc.date_mise_application,vd.confidentiel,vd.nombre_revision,vd.modifiable,vd.status
+    HAVING etat >= 6 AND etat <= 8
+);
 
-
--- ## trigger before insert on document ##--
-CREATE TRIGGER before_insert_document
-BEFORE INSERT ON documents
-FOR EACH ROW
-BEGIN
-    DECLARE last_id INT;
-    DECLARE type_code TEXT;
-    DECLARE process_id INT;
-    DECLARE current_date TEXT;
-    DECLARE document_rank INT;
-
-    IF NEW.ref_document IS NULL THEN
-        type_code := SUBSTRING(NEW.type_document, 1, 2);
-        process_id := NEW.id_processus;
-        current_date := TO_CHAR(NOW(), 'YYYYMMDD');
-        document_rank := (SELECT COUNT(*) FROM documents WHERE DATE(created_at) = CURRENT_DATE);
-        NEW.ref_document := type_code || process_id || '-' || current_date || '-' || LPAD(document_rank::text, 2, '0');
-    END IF;
-
-    SELECT MAX(id_document) INTO last_id
-    FROM documents
-    WHERE ref_document = NEW.ref_document;
-
-    IF last_id IS NOT NULL THEN
-        NEW.id_document := last_id + 1;
-    ELSE
-        NEW.id_document := 1;
-    END IF;
-END;
+CREATE OR REPLACE VIEW v_document_en_cours AS (
+    SELECT vd.ref_document,vd.id_document,dc.id_type,vd.titre,vd.etat,dc.date_creation,vd.confidentiel,vd.nombre_revision,vd.modifiable,vd.status
+    FROM v_document vd 
+    JOIN document dc
+        ON dc.ref_document = vd.ref_document AND dc.id_document = vd.id_document
+    GROUP BY vd.ref_document,vd.id_document,dc.id_type,vd.titre,vd.etat,dc.date_creation,vd.confidentiel,vd.nombre_revision,vd.modifiable,vd.status
+    HAVING etat < 6
+);

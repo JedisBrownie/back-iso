@@ -25,6 +25,7 @@ public class DocumentController {
     public ResponseEntity<?> add(
         @RequestParam(name = "titre") String titre,
         @RequestParam(name = "type") String type,
+        @RequestParam(name = "processus") String processusLie,
         @RequestParam(name = "confidentiel") String confidentiel )
     {
         if(titre.isEmpty() && type.isEmpty() && confidentiel.isEmpty()){
@@ -32,9 +33,10 @@ public class DocumentController {
         }
 
         int idType = Integer.parseInt(type);
-        int confid = Integer.parseInt(confidentiel);
+        boolean confid = Boolean.parseBoolean(confidentiel);       
+        int idProcessusLie = Integer.parseInt(processusLie);
         try{
-            documentService.addDocument(titre, idType, confid);
+            documentService.addDocument(titre,idType,confid,idProcessusLie);
             return ResponseEntity.ok("Document enregistré");
         }catch(Exception e){
             e.printStackTrace();

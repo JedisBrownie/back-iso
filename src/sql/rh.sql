@@ -20,8 +20,5 @@ INSERT INTO utilisateur(matricule,prenom,fonction_poste,service,lieu_travail) VA
 
 
 -- dblink atao ao am base iso
-SELECT dblink_connect
-('base_rh_connection','dbname=base_rh port=5432 host=localhost user=postgres password=root');
 
-SELECT dblink_disconnect('base_rh_connection');
 

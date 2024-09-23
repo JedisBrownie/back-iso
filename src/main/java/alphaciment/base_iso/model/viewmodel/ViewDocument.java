@@ -19,8 +19,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ViewDocument {
 
@@ -32,15 +30,15 @@ public class ViewDocument {
     Date dateArchive;
     int nombreRevision;
     String status;
-    Boolean confidentiel;
-    Boolean modification;
+    boolean confidentiel;
+    boolean modification;
 
     int idProcessusLie;
     int typeDocument;
     List<ProcessusLie> listeProcessusLie;
 
 
-    public ViewDocument(String referenceDocument, int idDocument, String nom, Date dateApplication, Date dateArchive, int nombreRevision, String status, Boolean confidentiel, Boolean modification) {
+    public ViewDocument(String referenceDocument, int idDocument, String nom, Date dateApplication, Date dateArchive, int nombreRevision, String status, boolean confidentiel, boolean modification) {
         this.referenceDocument = referenceDocument;
         this.idDocument = idDocument;
         this.nom = nom;
@@ -52,7 +50,7 @@ public class ViewDocument {
         this.modification = modification;
     }
 
-    public ViewDocument(String referenceDocument, int idDocument, String nom, Date dateApplication, int nombreRevision, String status, Boolean confidentiel, Boolean modification) {
+    public ViewDocument(String referenceDocument, int idDocument, String nom, Date dateApplication, int nombreRevision, String status, boolean confidentiel, boolean modification) {
         this.referenceDocument = referenceDocument;
         this.idDocument = idDocument;
         this.nom = nom;
@@ -63,7 +61,7 @@ public class ViewDocument {
         this.modification = modification;
     }
 
-    public ViewDocument(String referenceDocument, int idDocument, String nom, Date dateApplication, int nombreRevision, String status, Boolean confidentiel, Boolean modification , int idProcessusLie ,int typeDocument) {
+    public ViewDocument(String referenceDocument, int idDocument, String nom, Date dateApplication, int nombreRevision, String status, boolean confidentiel, boolean modification , int idProcessusLie ,int typeDocument) {
         this.referenceDocument = referenceDocument;
         this.idDocument = idDocument;
         this.nom = nom;
