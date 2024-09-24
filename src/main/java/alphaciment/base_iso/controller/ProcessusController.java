@@ -6,12 +6,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import alphaciment.base_iso.model.object.ProcessusGlobal;
+import alphaciment.base_iso.model.viewmodel.ViewListFromType;
 import alphaciment.base_iso.service.ProcessusService;
+import alphaciment.base_iso.service.ViewModelService;
 
 @RestController
 @RequestMapping("/processus")
@@ -21,6 +24,9 @@ public class ProcessusController {
 
     @Autowired
     ProcessusService processusService;
+
+    @Autowired
+    ViewModelService viewModelService;
 
     @GetMapping("/global/all")
     public List<ProcessusGlobal> getAllProcessusGlobal(){
@@ -33,7 +39,21 @@ public class ProcessusController {
         return liste;
     }
 
-    
+    @GetMapping("/valable/{processusLie}")
+    public ViewListFromType getDocumentValable(
+        @PathVariable(name = "processusLie") String processusLie
+    ){
+        
+        ViewListFromType liste = new ViewListFromType();
+        try {
+            int idProcessusLie = Integer.parseInt(processusLie);
+            liste = viewModelService.getAllDocumentApplicable(idProcessusLie);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return  liste;
+    }
     
 
     

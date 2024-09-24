@@ -83,15 +83,15 @@ CREATE TABLE HISTORIQUE_ETAT(
 
 -- ### document/personne ### --
 
-CREATE TABLE PILOTE_DOCUMENT(
-    ref_document VARCHAR(80),
-    id_document INT NOT NULL,
-    id_utilisateur BIGINT NOT NULL,
-    FOREIGN KEY(ref_document,id_document) REFERENCES document(ref_document,id_document)
-);
+-- CREATE TABLE PILOTE_DOCUMENT(
+--     ref_document VARCHAR(80),
+--     id_document INT NOT NULL,
+--     id_utilisateur BIGINT NOT NULL,
+--     FOREIGN KEY(ref_document,id_document) REFERENCES document(ref_document,id_document)
+-- );
 
 CREATE TABLE DIFFUSION_EMAIL(
-    ref_document VARCHAR(80)
+    ref_document VARCHAR(80),
     id_document INT NOT NULL,
     id_utilisateur BIGINT NOT NULL,
     FOREIGN KEY(ref_document,id_document) REFERENCES document(ref_document,id_document)
@@ -156,6 +156,8 @@ CREATE TABLE REDACTEUR_DOCUMENT(
 
 
 -- ## trigger generate reference on document ##--
+    CREATE SEQUENCE seq_reference START WITH 1 INCREMENT BY 1;
+
     CREATE OR REPLACE FUNCTION generate_reference_document()
     RETURNS TRIGGER AS $$
     
@@ -166,12 +168,20 @@ CREATE TABLE REDACTEUR_DOCUMENT(
     DECLARE document_rank INT;
     BEGIN
 
-        IF NEW.ref_document IS NULL THEN
+        IF NEW.ref_document IS NULL AND NEW.id_entete IS NOT NULL THEN
             type_code := SUBSTRING((SELECT UPPER(nom) FROM TYPE_DOCUMENT WHERE id_type = NEW.id_type), 1, 2);
             process_id := NEW.id_entete;
             date_now := TO_CHAR(NOW(), 'YYYYMMDD');
             document_rank := (SELECT COUNT(*)+1 FROM document WHERE DATE(date_creation) = CURRENT_DATE);
-            NEW.ref_document := type_code || process_id || '-' || date_now || '-' || LPAD(document_rank::text, 3, '00');
+            NEW.ref_document := type_code || process_id || '-' || date_now || '-' || LPAD(document_rank::text, 2, '0');
+        END IF;
+
+        IF NEW.ref_document IS NULL AND NEW.id_entete IS NULL THEN
+            type_code := SUBSTRING((SELECT UPPER(nom) FROM TYPE_DOCUMENT WHERE id_type = NEW.id_type), 1, 2);
+            process_id := LPAD(nextval('seq_reference')::text, 4, '0');
+            date_now := TO_CHAR(NOW(), 'YYYYMMDD');
+            document_rank := (SELECT COUNT(*)+1 FROM document WHERE DATE(date_creation) = CURRENT_DATE);
+            NEW.ref_document := type_code || process_id || '-' || date_now || '-' || LPAD(document_rank::text, 2, '0');
         END IF;
 
         SELECT MAX(id_document) INTO last_id
@@ -192,6 +202,9 @@ CREATE TABLE REDACTEUR_DOCUMENT(
     BEFORE INSERT ON document
     FOR EACH ROW
     EXECUTE FUNCTION generate_reference_document();
+
+    SELECT LPAD(2::text, 4, '0')
+    INSERT INTO DOCUMENT(titre,id_type,date_creation) VALUES ('AN-Traitement eau potable',2,CURRENT_DATE)
     
 -- ## trigger generate reference on historique(prod)##--
 
@@ -315,7 +328,7 @@ INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_cr
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application) VALUES ('EN1100-20220605-1',1,'Analyse des risques Ibity',4,false,'2022-05-05','2022-06-05');
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application) VALUES ('EN1100-20221208-1',1,'Analyse des risques dépôts',4,true,'2022-11-08','2022-12-08');
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('PR1300-20230922-1',1,'Communication',1,false,'2023-08-22','2023-09-22',78542,24566);
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI1300-20230211-1',1,'Demande de support en communication',3,false,'2023-01-11','2023-02-11',80682,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI1300-20230211-1',1,'Demande de support en communication',3,false,'2023-01-11','2023-02-11',80246,24566);
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ('EN1300-20220812-1',1,'Directive sur la communication',4,false,'2022-07-22');
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,date_archive,id_validateur,id_approbateur) VALUES ('FI2100-20230908-1',1,'Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga',3,false,'2023-08-08','2023-09-08','2023-12-15',78542,24566);
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI2100-20230908-1',2,'Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga',3,true,'2023-12-15','2024-01-15',78542,24566);
@@ -446,8 +459,8 @@ CREATE OR REPLACE VIEW v_processus AS(
 CREATE OR REPLACE VIEW v_document AS(
     SELECT h1.id_histo,ver.ref_document,ver.id_document,dc.titre,h1.id_etat as etat,h1.date_heure_etat,dc.confidentiel,COALESCE(vnb.nombre_revision,0) as nombre_revision,
     CASE
-        WHEN h1.id_etat = 8 THEN 1
-        ELSE 0
+        WHEN h1.id_etat = 8 THEN true
+        ELSE false
     END as modifiable,
     CASE
         WHEN h1.id_etat = ed.id_etat THEN ed.status
@@ -480,3 +493,21 @@ CREATE OR REPLACE VIEW v_document_en_cours AS (
     GROUP BY vd.ref_document,vd.id_document,dc.id_type,vd.titre,vd.etat,dc.date_creation,vd.confidentiel,vd.nombre_revision,vd.modifiable,vd.status
     HAVING etat < 6
 );
+
+CREATE OR REPLACE VIEW v_document_en_cours_owner AS(
+    SELECT vd.ref_document,vd.id_document,vd.titre,vd.etat,vd.date_creation,vd.confidentiel,vd.nombre_revision,vd.modifiable,vd.status,
+        CASE 
+            WHEN vd.etat = 1 THEN rd.id_utilisateur
+            WHEN vd.etat = 2 THEN dc.id_validateur
+            WHEN vd.etat = 4 THEN dc.id_approbateur
+        END AS owner
+    FROM v_document_en_cours vd 
+    JOIN document dc 
+    ON dc.ref_document = vd.ref_document AND dc.id_document = vd.id_document
+    LEFT JOIN redacteur_document rd 
+    ON rd.ref_document = vd.ref_document AND rd.id_document =  vd.id_document
+);
+
+
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)
+VALUES ('PR1100-20240316-1',1,2,80246,CURRENT_TIMESTAMP,'')

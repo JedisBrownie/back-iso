@@ -12,19 +12,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProcessusGlobal {
     int idProcessusGlobal;
     String nom;
     List<ProcessusLie> processusLie;
 
-    ProcessusGlobal(int idProcessusGlobal,String nom){
+    public ProcessusGlobal(int idProcessusGlobal,String nom){
         this.setIdProcessusGlobal(idProcessusGlobal);
         this.setNom(nom);
     }
+
 
 
     //############################################//
