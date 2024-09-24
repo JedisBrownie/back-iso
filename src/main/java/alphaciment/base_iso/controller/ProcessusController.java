@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import alphaciment.base_iso.model.object.ProcessusGlobal;
+import alphaciment.base_iso.model.object.ProcessusLie;
 import alphaciment.base_iso.model.viewmodel.ViewListFromType;
 import alphaciment.base_iso.service.ProcessusService;
 import alphaciment.base_iso.service.ViewModelService;
@@ -51,10 +52,23 @@ public class ProcessusController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return  liste;
     }
-    
+
+    @GetMapping("/liste/{processusGlobal}")
+    public List<ProcessusLie> findProcessusOfPg(
+        @PathVariable(name = "processusGlobal") String processusGlobal
+    ){
+        
+        List<ProcessusLie> liste = new ArrayList<>();
+        try {
+            int idProcessusGlobal = Integer.parseInt(processusGlobal);
+            liste = processusService.findProcessusLieOfPg(idProcessusGlobal);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  liste;
+    }
 
     
     

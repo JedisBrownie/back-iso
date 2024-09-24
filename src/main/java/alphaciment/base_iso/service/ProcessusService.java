@@ -28,6 +28,21 @@ public class ProcessusService {
         return liste;
     }
 
+    public List<ProcessusLie> findProcessusLieOfPg(int idProcessusGlobal) throws Exception{
+        List<ProcessusLie> liste = new ArrayList<>();
+        Connection connection = IsoDataSource.getConnection();
+        try {
+            ProcessusLie pl = new ProcessusLie();
+            liste = pl.findProcessusLieByPg(connection, idProcessusGlobal);
+        } catch (Exception e) {
+            throw e;
+        }finally{
+            connection.close();
+        }
+        return liste;
+    }
+
+
     public List<ProcessusGlobal> findProcessusOfDocument(String reference,int id) throws Exception{
         Connection connection = IsoDataSource.getConnection();
         List<ProcessusGlobal> liste = new ArrayList<>();
