@@ -16,11 +16,11 @@ import alphaciment.base_iso.service.DocumentService;
 @RestController
 @RequestMapping("/document")
 @CrossOrigin(origins="*", allowedHeaders="*",methods={RequestMethod.GET})
-
 public class DocumentController {
     @Autowired
     DocumentService documentService;
 
+    
     private final int sessionUtilisateur = 80682;
 
 
@@ -56,6 +56,7 @@ public class DocumentController {
         @RequestParam(name = "processusGlobal") String[] processusGlobal,
         @RequestParam(name = "processusLie") String[] processusLie,
         @RequestParam(name = "lecteur",required = false) String[] lecteur,
+        @RequestParam(name = "redacteur",required = false) String[] redacteur,
         @PathVariable String typeDocument)
     {
         if(titre.isEmpty() && confidentiel.isEmpty() && validateur.isEmpty() && approbateur.isEmpty()){
@@ -68,7 +69,7 @@ public class DocumentController {
         int idType = Integer.parseInt(typeDocument);
 
         try{
-            documentService.addDocumentRedaction(titre, idType, confid, idApprobateur, idValidateur, processusGlobal, processusLie, sessionUtilisateur ,lecteur);
+            documentService.addDocumentRedaction(titre, idType, confid, idApprobateur, idValidateur, processusGlobal, processusLie,lecteur,redacteur,sessionUtilisateur);
             return ResponseEntity.ok("Processus enregistré");
         }catch(Exception e){
             e.printStackTrace();
@@ -83,18 +84,20 @@ public class DocumentController {
         @RequestParam(name = "processusLie") String[] processusLie,
         @RequestParam(name = "confidentiel") String confidentiel,
         @RequestParam(name = "lecteur",required = false) String[] lecteur,
+        @RequestParam(name = "redacteur",required = false) String[] redacteur,
         @PathVariable(name = "typeDocument") String typeDocument )
     {
         int idType = Integer.parseInt(typeDocument);
         boolean confid = Boolean.parseBoolean(confidentiel); 
         try {
-            documentService.addEnregistrementRedaction(titre,idType,processusGlobal,processusLie,confid,lecteur,sessionUtilisateur);
+            documentService.addEnregistrementRedaction(titre,idType,processusGlobal,processusLie,confid,lecteur,redacteur,sessionUtilisateur);
             return ResponseEntity.ok("Enregistrement enregistré");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
 
 
     // @PostMapping("/processus/brouillon")

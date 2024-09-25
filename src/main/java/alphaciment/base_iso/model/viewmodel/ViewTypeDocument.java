@@ -64,13 +64,6 @@ public class ViewTypeDocument {
             }
         }
 
-        // for(ViewTypeDocument vd : liste){
-        //     vd.setListeDocument(new ViewDocument().getViewDocumentsApplicable(idProcessusLie, vd.getIdTypeDocument(), connection));
-        // }
-
-        // List<Document> 
-
-        // ViewDocument vdc =  new ViewDocument(reference, idDoc, titre, dateApplication, nbRevision, status, confidentiel, modifiable);
 
         List<ViewDocument> listeDoc = new ViewDocument().getAllDocumentsApplicable(idProcessusLie, connection);
 

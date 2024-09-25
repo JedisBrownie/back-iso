@@ -495,7 +495,7 @@ CREATE OR REPLACE VIEW v_document_en_cours AS (
 );
 
 CREATE OR REPLACE VIEW v_document_en_cours_owner AS(
-    SELECT vd.ref_document,vd.id_document,vd.titre,vd.etat,vd.date_creation,vd.confidentiel,vd.nombre_revision,vd.modifiable,vd.status,
+    SELECT vd.ref_document,vd.id_document,td.nom,vd.titre,vd.etat,vd.date_creation,vd.confidentiel,vd.nombre_revision,vd.modifiable,vd.status,
         CASE 
             WHEN vd.etat = 1 THEN rd.id_utilisateur
             WHEN vd.etat = 2 THEN dc.id_validateur
@@ -506,8 +506,23 @@ CREATE OR REPLACE VIEW v_document_en_cours_owner AS(
     ON dc.ref_document = vd.ref_document AND dc.id_document = vd.id_document
     LEFT JOIN redacteur_document rd 
     ON rd.ref_document = vd.ref_document AND rd.id_document =  vd.id_document
+    JOIN type_document td ON td.id_type = dc.id_type
+    GROUP BY vd.ref_document,vd.id_document,td.nom,vd.titre,vd.etat,vd.date_creation,vd.confidentiel,vd.nombre_revision,vd.modifiable,vd.status,owner
 );
+
+
+SELECT pld.ref_document,pld.id_document,pld.id_processus_lie
+FROM v_document_en_cours_owner vde 
+LEFT JOIN processus_lie_document pld ON pld.ref_document = vde.ref_document AND pld.id_document = vde.id_document 
+WHERE owner = 80246
+
+
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('PR1100-20240316-1',1,2100);
+
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI2300-20240925-01',1,2300);
 
 
 INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)
 VALUES ('PR1100-20240316-1',1,2,80246,CURRENT_TIMESTAMP,'')
+
+SELECT 1 FROM redacteur_document WHERE ref_document = 'EN1300-20220812-1' AND id_document = 1 AND id_utilisateur = 80682

@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,10 +17,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProcessusLie {
     int idProcessusLie;
     String nom;
     
+    public ProcessusLie(int idProcessusLie){
+        this.setIdProcessusLie(idProcessusLie);
+    }
 
     public List<ProcessusLie> findProcessusLieByPg(Connection connection,int idProcessusGlobal) throws Exception{
         List<ProcessusLie> liste = new ArrayList<>();

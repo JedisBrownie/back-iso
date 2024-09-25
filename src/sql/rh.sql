@@ -21,4 +21,7 @@ INSERT INTO utilisateur(matricule,prenom,fonction_poste,service,lieu_travail) VA
 
 -- dblink atao ao am base iso
 
-
+CREATE EXTENSION fdw_server;
+CREATE SERVER fdw_server FOREIGN DATA WRAPPER postgres_fdw OPTIONS(host'localhost',dbname'base_iso',port'5432');
+CREATE USER MAPPING FOR postgres SERVER fdw_server OPTIONS (user'postgres',password'root');
+IMPORT FOREIGN SCHEMA public FROM SERVER fdw_server INTO public;

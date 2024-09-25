@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import alphaciment.base_iso.model.object.ProcessusGlobal;
-import alphaciment.base_iso.model.object.ProcessusLie;
-import alphaciment.base_iso.model.viewmodel.ViewListFromType;
 import alphaciment.base_iso.service.DocumentService;
 import alphaciment.base_iso.service.EmailService;
 import alphaciment.base_iso.service.ProcessusService;
@@ -88,36 +86,11 @@ public class AuthentificationController
         return liste;
     }
 
-    @GetMapping("/findpl")
-    public List<ProcessusLie> findPl(
-        @RequestParam(name = "reference") String reference,
-        @RequestParam(name = "id") String id
-    ){
-        List<ProcessusLie> liste = new ArrayList<>();
-        try{
-            int idDocument = Integer.parseInt(id);
-            liste = processusService.findProcessusLieOfDocument(reference, idDocument);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return liste;
-    }
-    
+    // @GetMapping("/testAuteur")
 
-    @GetMapping("/liste")
-    public ViewListFromType getDocumentApplicable(
-        @RequestParam(name="processus_lie") String processusLie
-    ){
-        ViewListFromType liste = new ViewListFromType();
-        try {
-            int idProcessusLie = Integer.parseInt(processusLie);
-            liste = viewModelService.getAllDocumentApplicable(idProcessusLie);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-        return  liste;
-    }
+
+
 
     
 

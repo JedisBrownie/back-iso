@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -25,7 +26,7 @@ public class Utilisateur {
     String lieuTravail;
     String email;
 
-    private String nomTable = "v_utilisateur";
+    private static String nomTable = "v_utilisateur";
 
     public List<Utilisateur> getAllUtilisateur(Connection connection) throws Exception{
         List<Utilisateur> listeUtil = new ArrayList<>();
@@ -33,16 +34,17 @@ public class Utilisateur {
         
         try(Statement statement = connection.createStatement();ResultSet rs = statement.executeQuery(sql)) {
             while(rs.next()){
-                int matricule = rs.getInt("matricule");
-                String nom = rs.getString("nom");
-                String prenom = rs.getString("prenom");
-                String fonctionPoste = rs.getString("fonction_poste");
-                String service = rs.getString("service");
-                String lieuTravail = rs.getString("lieu_travail");
-                String email = rs.getString("email");
-
-                Utilisateur util = new Utilisateur(matricule, prenom, prenom, fonctionPoste, service, lieuTravail, email, nom);
-                listeUtil.add(util);
+                Utilisateur utilisateur = new Utilisateur();
+                
+                utilisateur.setMatricule(rs.getInt("matricule")); 
+                utilisateur.setNom(rs.getString("nom"));
+                utilisateur.setPrenom(rs.getString("prenom"));
+                utilisateur.setFonctionPoste(rs.getString("fonction_poste"));
+                utilisateur.setService(rs.getString("service"));
+                utilisateur.setLieuTravail(rs.getString("lieu_travail"));
+                utilisateur.setEmail(rs.getString("email"));
+                
+                listeUtil.add(utilisateur);
             }
             rs.close();
             statement.close();
@@ -54,8 +56,14 @@ public class Utilisateur {
 
     public Utilisateur findUtilisateurByMatricule(Connection connection,int idMatricule) throws Exception{
         Utilisateur utilisateur = new Utilisateur();
-        String sql = "SELECT * FROM " + nomTable + " WHERE matricule = '" + idMatricule + "'";
-        try(Statement statement = connection.createStatement();ResultSet rs = statement.executeQuery(sql)) {
+        String sql = "SELECT * FROM " + nomTable + " WHERE matricule = ?";
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try{
+            statement = connection.prepareStatement(sql);
+            statement.setInt(1, idMatricule);
+            rs = statement.executeQuery();
+
             while(rs.next()){
                 utilisateur.setMatricule(rs.getInt("matricule")); 
                 utilisateur.setNom(rs.getString("nom"));
@@ -65,38 +73,61 @@ public class Utilisateur {
                 utilisateur.setLieuTravail(rs.getString("lieu_travail"));
                 utilisateur.setEmail(rs.getString("email"));
             }
-            rs.close();
-            statement.close();
         } catch (Exception e) {
             throw e;
         }
+        finally{
+            if(rs != null){
+                rs.close();
+            }
+            if(statement != null){
+                statement.close();
+            }
+        }
+
         return utilisateur;
     }
 
-    public List<Utilisateur> findRedacteurDocument(Connection connection,String ref_document,int idDocument) throws Exception{
-        List<Utilisateur> liste = new ArrayList<>();
+    // public List<Utilisateur> findRedacteurDocument(Connection connection,String ref_document,int idDocument) throws Exception{
+    //     List<Utilisateur> liste = new ArrayList<>();
 
-        return liste;
-    }
+    //     return liste;
+    // }
 
-    public List<Utilisateur> findLecteurAutoriseDocument(Connection connection,String ref_document,int idDocument) throws Exception{
-        List<Utilisateur> liste = new ArrayList<>();
+    // public List<Utilisateur> findLecteurAutoriseDocument(Connection connection,String ref_document,int idDocument) throws Exception{
+    //     List<Utilisateur> liste = new ArrayList<>();
 
-        return liste;
-    }
+    //     return liste;
+    // }
 
 
-    public void saveRedacteurDocument(String refDocument,int idDocument,String[] redacteur,Connection connection) throws Exception{
+    public void saveRedacteurDocument(String refDocument,int idDocument,String[] redacteur,int idUtilisateur,Connection connection) throws Exception{
         String sql = "INSERT INTO redacteur_document(ref_document,id_document,id_utilisateur) VALUES (?,?,?)";
 
         try(PreparedStatement statement = connection.prepareStatement(sql)){
-            statement.setString(1, refDocument);
-            statement.setInt(2, idDocument);
+            
+            if(redacteur != null && redacteur.length > 0){  
+                List<String> maListe = new ArrayList<>(Arrays.asList(redacteur));
+                maListe.add(String.valueOf(idUtilisateur));
+                String[] listeRedacteur = maListe.toArray(new String[0]);
 
-            for(String idUtilisateur : redacteur){
-                statement.setInt(3, Integer.parseInt(idUtilisateur));
+                statement.setString(1, refDocument);
+                statement.setInt(2, idDocument);
+    
+                for(String idUtil : listeRedacteur){
+                    statement.setInt(3, Integer.parseInt(idUtil));
+                    statement.executeUpdate();
+                    System.out.println("Rédacteur : " + idUtil);
+                }
+            }else if (redacteur == null) {
+                statement.setString(1, refDocument);
+                statement.setInt(2, idDocument);
+                statement.setInt(3, idUtilisateur);
                 statement.executeUpdate();
+                System.out.println("Rédacteur : " + idUtilisateur);
             }
+
+            statement.close();
             
         }catch(Exception e){
             throw e;
@@ -113,7 +144,7 @@ public class Utilisateur {
     
                 for(String idUtilisateur : lecteur){
                     statement.setInt(3, Integer.parseInt(idUtilisateur));
-                    // statement.executeUpdate();
+                    statement.executeUpdate();
                     System.out.println("Lecteur enregistré : " + idUtilisateur);
                 }
                 statement.close();
@@ -121,6 +152,44 @@ public class Utilisateur {
                 throw e;
             }
         }
+    }
+
+
+    public boolean isRedacteur(String refDocument,int idDocument,int idUtilisateur,Connection connection)throws Exception{
+        boolean val = false;
+        String sql = "SELECT * FROM redacteur_document WHERE ref_document = ? AND id_document = ? AND id_utilisateur = ?";
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, refDocument);
+            statement.setInt(2, idDocument);
+            statement.setInt(3, idUtilisateur);
+
+            rs = statement.executeQuery();
+            int nbRow = 0;
+
+            while(rs.next()){
+                nbRow++;
+            }
+
+            if(nbRow == 1){
+                val = true;
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if(rs != null){
+                rs.close();
+            }
+            if(statement != null){
+                statement.close();
+            }
+        }
+
+        return val;
     }
 
 

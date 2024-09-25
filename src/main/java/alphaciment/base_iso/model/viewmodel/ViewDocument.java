@@ -4,8 +4,10 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -33,8 +35,8 @@ public class ViewDocument {
     boolean confidentiel;
     boolean modification;
 
-    int idProcessusLie;
     int typeDocument;
+    String nomTypeDocument;
     List<ProcessusLie> listeProcessusLie;
 
 
@@ -70,56 +72,10 @@ public class ViewDocument {
         this.status = status;
         this.confidentiel = confidentiel;
         this.modification = modification;
-        this.idProcessusLie = idProcessusLie;
         this.typeDocument = typeDocument;
     }
 
 
-
-    // public List<ViewDocument> getViewDocumentsApplicable(int idProcessusLie,int typeDocument,Connection connection) throws Exception{
-    //     List<ViewDocument> liste = new ArrayList<>();
-    //     String sql = "SELECT vda.ref_document,vda.id_document,vda.titre,vda.etat,vda.date_mise_application,vda.confidentiel,vda.nombre_revision,vda.modifiable,vda.status " +
-    //                 "FROM v_document_applicable vda " + 
-    //                 "JOIN processus_lie_document pld ON pld.ref_document = vda.ref_document AND pld.id_document = vda.id_document " +
-    //                 "WHERE pld.id_processus_lie = ? AND vda.id_type = ?";
-                    
-    //     PreparedStatement statement = null;
-    //     ResultSet rs = null;
-
-    //     try{
-    //         statement = connection.prepareStatement(sql);
-    //         statement.setInt(1,idProcessusLie);
-    //         statement.setInt(2, typeDocument);
-
-    //         rs = statement.executeQuery();
-
-    //         while (rs.next()) {
-    //             String reference = rs.getString("ref_document");
-    //             int idDoc = rs.getInt("id_document");
-    //             String titre = rs.getString("titre");
-    //             Date dateApplication = rs.getDate("date_mise_application");
-    //             Boolean confidentiel = rs.getBoolean("confidentiel");
-    //             int nbRevision = rs.getInt("nombre_revision");
-    //             Boolean modifiable = rs.getBoolean("modifiable");
-    //             String status = rs.getString("status");
-
-    //             ViewDocument vdc =  new ViewDocument(reference, idDoc, titre, dateApplication, nbRevision, status, confidentiel, modifiable);
-    //             liste.add(vdc);
-    //         }
-    //     }catch(Exception e){
-    //         throw e;
-    //     }finally{
-    //         if(statement != null){
-    //             statement.close();
-    //         }
-
-    //         if(rs != null){
-    //             statement.close();
-    //         }
-    //     }
-        
-    //     return liste;
-    // }
 
     public List<ViewDocument> getAllDocumentsApplicable(int idProcessusLie,Connection connection) throws Exception{
         List<ViewDocument> liste = new ArrayList<>();
@@ -141,31 +97,57 @@ public class ViewDocument {
                 String reference = rs.getString("ref_document");
                 int idDoc = rs.getInt("id_document");
                 String titre = rs.getString("titre");
-                Date dateApplication = rs.getDate("date_mise_application");
-                Boolean confidentiel = rs.getBoolean("confidentiel");
+                Date dateApp = rs.getDate("date_mise_application");
+                Boolean confid = rs.getBoolean("confidentiel");
                 int nbRevision = rs.getInt("nombre_revision");
                 Boolean modifiable = rs.getBoolean("modifiable");
-                String status = rs.getString("status");
+                String stut = rs.getString("status");
 
                 int idPl = rs.getInt("id_processus_lie");
-                int typeDocument = rs.getInt("id_type");
+                int typeDoc = rs.getInt("id_type");
 
-                ViewDocument vdc =  new ViewDocument(reference, idDoc, titre, dateApplication, nbRevision, status, confidentiel, modifiable,idPl,typeDocument);
+                ViewDocument vdc =  new ViewDocument(reference, idDoc, titre, dateApp, nbRevision, stut, confid, modifiable,idPl,typeDoc);
 
                 liste.add(vdc);
             }
+            
         }catch(Exception e){
             throw e;
         }finally{
-            if(statement != null){
-                statement.close();
+            if(rs != null){
+                rs.close();
             }
 
-            if(rs != null){
+            if(statement != null){
                 statement.close();
             }
         }
         
+        return liste;
+    }
+
+
+    public List<String[]> getViewProcessusDocumentEnCours(Connection connection) throws Exception{
+        List<String[]> liste = new ArrayList<>();
+        String sql =  "SELECT pld.ref_document,pld.id_document,pld.id_processus_lie " +
+                      "FROM v_document_en_cours_owner vde " + 
+                      "JOIN processus_lie_document pld ON pld.ref_document = vde.ref_document AND pld.id_document = vde.id_document ";
+
+        try(Statement statement = connection.createStatement();ResultSet rs = statement.executeQuery(sql)) {
+            while(rs.next()){
+                String[] processLie = new String[3];
+                
+                processLie[0] = rs.getString("ref_document");
+                processLie[1] = String.valueOf(rs.getInt("id_document"));
+                processLie[2] = String.valueOf(rs.getInt("id_processus_lie"));
+                
+                liste.add(processLie);
+            }
+
+        } catch (Exception e) {
+            throw e;
+        }
+
         return liste;
     }
 
@@ -182,14 +164,28 @@ public class ViewDocument {
             rs = statement.executeQuery();
 
             while(rs.next()){
-                String referenceDocument = rs.getString("ref_document");
-                int idDocument = rs.getInt("id_document");
+
+                String refDoc = rs.getString("ref_document");
+                int idDoc = rs.getInt("id_document");
                 String statut = rs.getString("status");
                 String titre = rs.getString("titre");
                 Date date = rs.getDate("date_creation");
                 int nbRevision = rs.getInt("nombre_revision");
-                
+                String nomType = rs.getString("nom");
+
+                ViewDocument viewDocument = new ViewDocument();
+
+                viewDocument.setReferenceDocument(refDoc);
+                viewDocument.setIdDocument(idDoc);
+                viewDocument.setStatus(statut);
+                viewDocument.setNom(titre);
+                viewDocument.setDateCreation(date);
+                viewDocument.setNombreRevision(nbRevision);
+                viewDocument.setNomTypeDocument(nomType);
+
+                liste.add(viewDocument);
             }
+
         } catch (Exception e) {
             throw e;
         }finally{
@@ -200,6 +196,64 @@ public class ViewDocument {
                 rs.close();
             }
         }
+
+        List<String[]> processusDoc = getViewProcessusDocumentEnCours(connection);
+
+        liste.forEach(inListe ->{
+            List<ProcessusLie> listeProcessusL = processusDoc.stream()
+            .filter(pl->pl[0].compareTo(inListe.getReferenceDocument()) == 0 && Integer.parseInt(pl[1]) == inListe.getIdDocument())
+            .map(pl -> new ProcessusLie(Integer.parseInt(pl[2])))
+            .collect(Collectors.toList());
+
+            inListe.setListeProcessusLie(listeProcessusL);
+        });
+
+        return liste;
+    }
+
+    public List<ViewDocument> getAllDocumentEnCours(Connection connection)throws Exception{
+        List<ViewDocument> liste = new ArrayList<>();
+        String sql = "SELECT * FROM v_document_en_cours_owner";
+        
+        try(Statement statement = connection.createStatement();ResultSet rs = statement.executeQuery(sql)) {
+            
+            while(rs.next()){
+
+                String refDoc = rs.getString("ref_document");
+                int idDoc = rs.getInt("id_document");
+                String statut = rs.getString("status");
+                String titre = rs.getString("titre");
+                Date date = rs.getDate("date_creation");
+                int nbRevision = rs.getInt("nombre_revision");
+                String nomType = rs.getString("nom");
+
+                ViewDocument viewDocument = new ViewDocument();
+
+                viewDocument.setReferenceDocument(refDoc);
+                viewDocument.setIdDocument(idDoc);
+                viewDocument.setStatus(statut);
+                viewDocument.setNom(titre);
+                viewDocument.setDateCreation(date);
+                viewDocument.setNombreRevision(nbRevision);
+                viewDocument.setNomTypeDocument(nomType);
+
+                liste.add(viewDocument);
+            }
+
+        } catch (Exception e) {
+            throw e;
+        }
+
+        List<String[]> processusDoc = getViewProcessusDocumentEnCours(connection);
+
+        liste.forEach(inListe ->{
+            List<ProcessusLie> listeProcessusL = processusDoc.stream()
+            .filter(pl->pl[0].compareTo(inListe.getReferenceDocument()) == 0 && Integer.parseInt(pl[1]) == inListe.getIdDocument())
+            .map(pl -> new ProcessusLie(Integer.parseInt(pl[2])))
+            .collect(Collectors.toList());
+
+            inListe.setListeProcessusLie(listeProcessusL);
+        });
 
         return liste;
     }

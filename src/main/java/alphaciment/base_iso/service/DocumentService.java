@@ -24,28 +24,28 @@ public class DocumentService {
         }
     }
 
-    public void addDocumentBrouillon(String titre,int idTypeDocument,boolean confidentiel,int idApprobateur,int idVerificateur,String[] processusGlobal,String[] processusLie,int idUtilisateur) throws Exception{
-        int idProcessusLie = Integer.parseInt(processusLie[0]);
-        Connection connection = IsoDataSource.getConnection();
-        connection.setAutoCommit(false);
+    // public void addDocumentBrouillon(String titre,int idTypeDocument,boolean confidentiel,int idApprobateur,int idVerificateur,String[] processusGlobal,String[] processusLie,int idUtilisateur) throws Exception{
+    //     int idProcessusLie = Integer.parseInt(processusLie[0]);
+    //     Connection connection = IsoDataSource.getConnection();
+    //     connection.setAutoCommit(false);
 
-        try{
-            Document doc = new Document().addDocument(titre,idTypeDocument,idProcessusLie,confidentiel,idApprobateur,idVerificateur,connection);
-            System.out.println("From service " + doc.getReferenceDocument() + " | " + doc.getIdDocument());
-            // new ProcessusLie().insertProcessusLieOfDocument(doc.getReferenceDocument(),doc.getIdDocument(),processusLie, connection);
-            // new ProcessusGlobal().insertProcessusOfDocument(doc.getReferenceDocument(), doc.getIdDocument(), processusGlobal, connection);
-            // new HistoriqueEtat().saveHistoriqueEtatSansMotif(doc.getReferenceDocument(),doc.getIdDocument(),1,idUtilisateur,connection);
+    //     try{
+    //         Document doc = new Document().addDocument(titre,idTypeDocument,idProcessusLie,confidentiel,idApprobateur,idVerificateur,connection);
+    //         System.out.println("From service " + doc.getReferenceDocument() + " | " + doc.getIdDocument());
+    //         // new ProcessusLie().insertProcessusLieOfDocument(doc.getReferenceDocument(),doc.getIdDocument(),processusLie, connection);
+    //         // new ProcessusGlobal().insertProcessusOfDocument(doc.getReferenceDocument(), doc.getIdDocument(), processusGlobal, connection);
+    //         // new HistoriqueEtat().saveHistoriqueEtatSansMotif(doc.getReferenceDocument(),doc.getIdDocument(),1,idUtilisateur,connection);
             
-            connection.commit();
-        }catch(Exception e){
-            connection.rollback();
-            throw e;
-        }finally{
-            connection.close();
-        }
-    }
-
-    public void addDocumentRedaction(String titre,int idTypeDocument,boolean confidentiel,int idApprobateur,int idVerificateur,String[] processusGlobal,String[] processusLie,int idUtilisateur,String[] lecteur) throws Exception{
+    //         connection.commit();
+    //     }catch(Exception e){
+    //         connection.rollback();
+    //         throw e;
+    //     }finally{
+    //         connection.close();
+    //     }
+    // }
+    
+    public void addDocumentRedaction(String titre,int idTypeDocument,boolean confidentiel,int idApprobateur,int idVerificateur,String[] processusGlobal,String[] processusLie,String[] lecteur,String[] redacteur,int idUtilisateur) throws Exception{
         int idProcessusLie = Integer.parseInt(processusLie[0]);
         Connection connection = IsoDataSource.getConnection();
         connection.setAutoCommit(false);
@@ -56,29 +56,11 @@ public class DocumentService {
             new ProcessusGlobal().insertProcessusOfDocument(doc.getReferenceDocument(), doc.getIdDocument(), processusGlobal, connection);
             new HistoriqueEtat().saveHistoriqueEtatSansMotif(doc.getReferenceDocument(),doc.getIdDocument(),2,idUtilisateur,connection);
             System.out.println("Enregistre daoly hatreto");            
+            
+            new Utilisateur().saveRedacteurDocument(doc.getReferenceDocument(), doc.getIdDocument(),redacteur,idUtilisateur,connection);
             if(confidentiel == true){
                 new Utilisateur().saveLecteurDocument(doc.getReferenceDocument(),doc.getIdDocument(),lecteur, connection);
             }
-            // connection.commit();
-        }catch(Exception e){
-            connection.rollback();
-            throw e;
-        }finally{
-            connection.close();
-        }
-    }
-
-    public void addEnregistrementBrouillon(String titre,int idTypeDocument,String[] processusGlobal,String[] processusLie,boolean confidentiel,int idUtilisateur) throws Exception{
-        int idProcessusLie = Integer.parseInt(processusLie[0]);
-        Connection connection = IsoDataSource.getConnection();
-        connection.setAutoCommit(false);
-
-        try{
-            Document doc = new Document().addEnregistrement(titre, idTypeDocument, idProcessusLie,confidentiel,connection);
-            System.out.println("From service " + doc.getReferenceDocument() + " | " + doc.getIdDocument());
-            // new ProcessusLie().insertProcessusLieOfDocument(doc.getReferenceDocument(),doc.getIdDocument(),processusLie, connection);
-            // new ProcessusGlobal().insertProcessusOfDocument(doc.getReferenceDocument(), doc.getIdDocument(), processusGlobal, connection);
-            // new HistoriqueEtat().saveHistoriqueEtatSansMotif(doc.getReferenceDocument(),doc.getIdDocument(),1,idUtilisateur,connection);
             
             connection.commit();
         }catch(Exception e){
@@ -89,7 +71,28 @@ public class DocumentService {
         }
     }
 
-    public void addEnregistrementRedaction(String titre,int idTypeDocument,String[] processusGlobal,String[] processusLie,boolean confidentiel,String[] lecteur,int idUtilisateur) throws Exception{
+    // public void addEnregistrementBrouillon(String titre,int idTypeDocument,String[] processusGlobal,String[] processusLie,boolean confidentiel,int idUtilisateur) throws Exception{
+    //     int idProcessusLie = Integer.parseInt(processusLie[0]);
+    //     Connection connection = IsoDataSource.getConnection();
+    //     connection.setAutoCommit(false);
+
+    //     try{
+    //         Document doc = new Document().addEnregistrement(titre, idTypeDocument, idProcessusLie,confidentiel,connection);
+    //         System.out.println("From service " + doc.getReferenceDocument() + " | " + doc.getIdDocument());
+    //         // new ProcessusLie().insertProcessusLieOfDocument(doc.getReferenceDocument(),doc.getIdDocument(),processusLie, connection);
+    //         // new ProcessusGlobal().insertProcessusOfDocument(doc.getReferenceDocument(), doc.getIdDocument(), processusGlobal, connection);
+    //         // new HistoriqueEtat().saveHistoriqueEtatSansMotif(doc.getReferenceDocument(),doc.getIdDocument(),1,idUtilisateur,connection);
+            
+    //         connection.commit();
+    //     }catch(Exception e){
+    //         connection.rollback();
+    //         throw e;
+    //     }finally{
+    //         connection.close();
+    //     }
+    // }
+
+    public void addEnregistrementRedaction(String titre,int idTypeDocument,String[] processusGlobal,String[] processusLie,boolean confidentiel,String[] lecteur,String[] redacteur,int idUtilisateur) throws Exception{
         int idProcessusLie = Integer.parseInt(processusLie[0]);
         Connection connection = IsoDataSource.getConnection();
         connection.setAutoCommit(false);
@@ -100,9 +103,12 @@ public class DocumentService {
             new ProcessusGlobal().insertProcessusOfDocument(doc.getReferenceDocument(), doc.getIdDocument(), processusGlobal, connection);
             new HistoriqueEtat().saveHistoriqueEtatSansMotif(doc.getReferenceDocument(),doc.getIdDocument(),2,idUtilisateur,connection);
             System.out.println("Enregistre daoly hatreto");            
+
+            new Utilisateur().saveRedacteurDocument(doc.getReferenceDocument(), doc.getIdDocument(),redacteur,idUtilisateur,connection);
             if(confidentiel == true){
                 new Utilisateur().saveLecteurDocument(doc.getReferenceDocument(),doc.getIdDocument(),lecteur, connection);
             }
+
             connection.commit();
         }catch(Exception e){
             connection.rollback();
