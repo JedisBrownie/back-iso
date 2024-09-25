@@ -37,6 +37,7 @@ public class ViewDocument {
 
     int typeDocument;
     String nomTypeDocument;
+    int owner;
     List<ProcessusLie> listeProcessusLie;
 
 
@@ -73,6 +74,19 @@ public class ViewDocument {
         this.confidentiel = confidentiel;
         this.modification = modification;
         this.typeDocument = typeDocument;
+    }
+
+    public ViewDocument(String referenceDocument, int idDocument,String nom,String status,Date dateCreation,int nombreRevision,String nomTypeDocument,boolean confidentiel) {
+        this.referenceDocument = referenceDocument;
+        this.idDocument = idDocument;
+        this.nom = nom;
+        this.nombreRevision = nombreRevision;
+        this.status = status;
+        this.confidentiel = confidentiel;
+        this.dateCreation = dateCreation;
+        this.nombreRevision = nombreRevision;
+        this.nomTypeDocument = nomTypeDocument;
+        this.confidentiel = confidentiel;
     }
 
 
@@ -172,6 +186,7 @@ public class ViewDocument {
                 Date date = rs.getDate("date_creation");
                 int nbRevision = rs.getInt("nombre_revision");
                 String nomType = rs.getString("nom");
+                boolean confid = rs.getBoolean("confidentiel");
 
                 ViewDocument viewDocument = new ViewDocument();
 
@@ -182,6 +197,7 @@ public class ViewDocument {
                 viewDocument.setDateCreation(date);
                 viewDocument.setNombreRevision(nbRevision);
                 viewDocument.setNomTypeDocument(nomType);
+                viewDocument.setConfidentiel(confid);
 
                 liste.add(viewDocument);
             }
@@ -226,6 +242,8 @@ public class ViewDocument {
                 Date date = rs.getDate("date_creation");
                 int nbRevision = rs.getInt("nombre_revision");
                 String nomType = rs.getString("nom");
+                int matricule = rs.getInt("owner");
+                boolean confid = rs.getBoolean("confidentiel");
 
                 ViewDocument viewDocument = new ViewDocument();
 
@@ -236,6 +254,8 @@ public class ViewDocument {
                 viewDocument.setDateCreation(date);
                 viewDocument.setNombreRevision(nbRevision);
                 viewDocument.setNomTypeDocument(nomType);
+                viewDocument.setOwner(matricule);
+                viewDocument.setConfidentiel(confid);
 
                 liste.add(viewDocument);
             }

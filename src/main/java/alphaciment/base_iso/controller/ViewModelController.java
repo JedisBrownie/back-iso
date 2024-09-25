@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import alphaciment.base_iso.model.viewmodel.ViewDocument;
 import alphaciment.base_iso.model.viewmodel.ViewListFromType;
+import alphaciment.base_iso.model.viewmodel.ViewListFromUser;
 import alphaciment.base_iso.service.ViewModelService;
 
 @RestController
@@ -50,6 +51,18 @@ public class ViewModelController {
             e.printStackTrace();
         }
         
+        return liste;
+    }
+
+    @GetMapping("/admin/encours")
+    public List<ViewListFromUser> getAllDocumentEnCours(){
+        List<ViewListFromUser> liste = new ArrayList<>();
+        try{
+            liste = viewModelService.getAllDocumentEnCours();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
         return liste;
     }
 

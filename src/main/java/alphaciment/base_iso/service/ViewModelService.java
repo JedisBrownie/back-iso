@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import alphaciment.base_iso.model.connection.IsoDataSource;
 import alphaciment.base_iso.model.viewmodel.ViewDocument;
 import alphaciment.base_iso.model.viewmodel.ViewListFromType;
+import alphaciment.base_iso.model.viewmodel.ViewListFromUser;
 
 @Service
 public class ViewModelService {
@@ -40,6 +41,21 @@ public class ViewModelService {
 
         try {
             liste = new ViewDocument().getViewDocumentsOfOwner(connection, idUtilisateur);
+        }catch(Exception e) {
+            throw e;
+        }finally{
+            connection.close();
+        }
+
+        return liste;
+    }
+
+    public List<ViewListFromUser> getAllDocumentEnCours()throws Exception{
+        Connection connection = IsoDataSource.getConnection();
+        List<ViewListFromUser> liste = new ArrayList<>();
+
+        try {
+            liste = new ViewListFromUser().getAllDocumentEnCours(connection);
         }catch(Exception e) {
             throw e;
         }finally{
