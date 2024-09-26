@@ -245,20 +245,14 @@ public class ViewDocument {
                 int matricule = rs.getInt("owner");
                 boolean confid = rs.getBoolean("confidentiel");
 
-                ViewDocument viewDocument = new ViewDocument();
-
-                viewDocument.setReferenceDocument(refDoc);
-                viewDocument.setIdDocument(idDoc);
-                viewDocument.setStatus(statut);
-                viewDocument.setNom(titre);
-                viewDocument.setDateCreation(date);
-                viewDocument.setNombreRevision(nbRevision);
-                viewDocument.setNomTypeDocument(nomType);
+                ViewDocument viewDocument = new ViewDocument(refDoc,idDoc,titre,statut,date,nbRevision,nomType,confid);
                 viewDocument.setOwner(matricule);
-                viewDocument.setConfidentiel(confid);
 
                 liste.add(viewDocument);
             }
+            
+            rs.close();
+            statement.close();
 
         } catch (Exception e) {
             throw e;

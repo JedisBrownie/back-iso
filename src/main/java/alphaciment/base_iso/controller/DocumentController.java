@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,8 @@ public class DocumentController {
     @Autowired
     DocumentService documentService;
 
-    
+    // :::: ovaina session utilisateur JWT ::::: ///
+
     private final int sessionUtilisateur = 80682;
 
 
@@ -97,6 +99,30 @@ public class DocumentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+
+    @GetMapping("/verifRedacteur/{referenceDocument}/{idDocument}")
+    public Boolean verifRedacteur(
+        @RequestParam(name = "utilisateur") String utilisateur,
+        @PathVariable(name = "referenceDocument") String reference,
+        @PathVariable(name = "idDocument") String idDocument
+    ){
+        boolean val = false;
+        
+        try {
+            int idUtilisateur = Integer.parseInt(utilisateur);
+            int idDoc = Integer.parseInt(idDocument);
+            val = documentService.verifRedacteurDocument(reference, idDoc, idUtilisateur);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return val;
+    }
+
+
+
+
 
 
 

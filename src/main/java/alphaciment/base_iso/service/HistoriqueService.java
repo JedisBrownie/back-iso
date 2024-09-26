@@ -34,7 +34,7 @@ public class HistoriqueService {
         int etatBrouillon = 1;
         try {
             he.saveHistoriqueEtat(ref_document, id_document, etatInvalide, idUtilisateur, motif, connection);
-            he.saveHistoriqueEtat(ref_document, id_document, etatBrouillon, idUtilisateur, motif, connection);
+            he.saveHistoriqueEtatSansMotif(ref_document, id_document, etatBrouillon, idUtilisateur, connection);
             connection.commit();
         } catch (Exception e) {
             connection.rollback();
@@ -54,7 +54,7 @@ public class HistoriqueService {
         int etatBrouillon = 1;
         try {
             he.saveHistoriqueEtat(ref_document, id_document, etatInvalide, idUtilisateur, motif, connection);
-            he.saveHistoriqueEtat(ref_document, id_document, etatBrouillon, idUtilisateur, motif, connection);
+            he.saveHistoriqueEtatSansMotif(ref_document, id_document, etatBrouillon, idUtilisateur, connection);
             connection.commit();
         } catch (Exception e) {
             connection.rollback();
@@ -64,7 +64,7 @@ public class HistoriqueService {
         }
     }
 
-    public void demandeRevision(String ref_document,int id_document,int idUtilisateur) throws Exception{
+    public void demandeRevision(String ref_document,int id_document,int idUtilisateur,String motif) throws Exception{
         Connection connection = IsoDataSource.getConnection();
         HistoriqueEtat he = new HistoriqueEtat();
         connection.setAutoCommit(false);
@@ -73,7 +73,7 @@ public class HistoriqueService {
             boolean estRedacteur = new Utilisateur().isRedacteur(ref_document, id_document, idUtilisateur, connection);
             if(estRedacteur ==  true){
                 System.out.println("Vous êtes autoriser");
-                he.saveHistoriqueEtat(ref_document, id_document, etatDemande, idUtilisateur, ref_document, connection);
+                he.saveHistoriqueEtat(ref_document, id_document, etatDemande, idUtilisateur, motif, connection);
                 connection.commit();
             }else{
                 throw new Exception("Vous n'avez pas accés à ce document");
@@ -86,6 +86,37 @@ public class HistoriqueService {
     }
 
 
+    public void validerRedaction(String ref_document,int id_document,int idUtilisateur) throws Exception{
+        Connection connection = IsoDataSource.getConnection();
+        HistoriqueEtat he = new HistoriqueEtat();
+        connection.setAutoCommit(false);
+        int etatRedaction = 2;
+        try {
+            // :::: fonction manamo maj ny changement am document ::::: ///
+            he.saveHistoriqueEtatSansMotif(ref_document, id_document, etatRedaction, idUtilisateur, connection);
+            connection.commit();
+        } catch (Exception e) {
+            throw e;
+        }finally{
+            connection.close();
+        }
+    }
+
+    public void validerDemandeRevision(String ref_document,int id_document,int idUtilisateur) throws Exception{
+        Connection connection = IsoDataSource.getConnection();
+        HistoriqueEtat he = new HistoriqueEtat();
+        connection.setAutoCommit(false);
+        int etatRedaction = 8;
+        try {
+            // :::: notification ::::: ///
+            he.saveHistoriqueEtatSansMotif(ref_document, id_document, etatRedaction, idUtilisateur, connection);
+            connection.commit();
+        } catch (Exception e) {
+            throw e;
+        }finally{
+            connection.close();
+        }
+    }
 
 
 

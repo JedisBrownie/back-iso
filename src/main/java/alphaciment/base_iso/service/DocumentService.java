@@ -119,7 +119,17 @@ public class DocumentService {
     }
 
 
-
+    public boolean verifRedacteurDocument(String reference,int idDocument,int idUtilisateur) throws Exception{
+        boolean val = false;
+        
+        try(Connection connection = IsoDataSource.getConnection();){
+            val = new Utilisateur().isRedacteur(reference, idDocument, idUtilisateur, connection);
+        } catch (Exception e) {
+            throw e;
+        }
+        
+        return val;
+    }
 
 
 

@@ -40,7 +40,6 @@ public class ProcessusController {
     }
 
 
-
     @GetMapping("/liste/{processusGlobal}")
     public List<ProcessusLie> findProcessusOfPg(
         @PathVariable(name = "processusGlobal") String processusGlobal

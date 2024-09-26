@@ -21,9 +21,12 @@ public class HistoriqueController {
     @Autowired
     HistoriqueService historiqueService;
 
+    private final int redacteur = 80682;
     private final int sessionUtilisateur = 80246;
     private final int sessionApprobateur = 24566;
 
+
+    // :::: ovaina session utilisateur JWT ::::: ///
 
     @PutMapping("/invalidation/{referenceDocument}/{idDocument}")
     public ResponseEntity<?> invalidationDocument(
@@ -33,7 +36,7 @@ public class HistoriqueController {
     ){
         try {
             int id = Integer.parseInt(idDocument);
-            historiqueService.saveEtatInvalidation(idDocument, id, sessionUtilisateur, motif);
+            historiqueService.saveEtatInvalidation(referenceDocument, id, sessionUtilisateur, motif);
             return ResponseEntity.ok("Document non validé"); 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -48,7 +51,7 @@ public class HistoriqueController {
     ){
         try {
             int id = Integer.parseInt(idDocument);
-            historiqueService.saveEtatDesapprobation(idDocument, id, sessionApprobateur, motif);
+            historiqueService.saveEtatDesapprobation(referenceDocument, id, sessionApprobateur, motif);
             return ResponseEntity.ok("Document non approuvé"); 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -89,12 +92,13 @@ public class HistoriqueController {
 
     @PutMapping("/revision/{referenceDocument}/{idDocument}")
     public ResponseEntity<?> demandeRevision(
+        @RequestParam(name = "motif") String motif, 
         @PathVariable(name = "referenceDocument") String referenceDocument,
         @PathVariable(name = "idDocument") String idDocument
     ){
         try {
             int id = Integer.parseInt(idDocument);
-            historiqueService.demandeRevision(referenceDocument, id, sessionUtilisateur);
+            historiqueService.demandeRevision(referenceDocument,id,sessionUtilisateur,motif);
             return ResponseEntity.ok("Votre demande a été envoyé");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -102,5 +106,32 @@ public class HistoriqueController {
     }
 
     
+    @PutMapping("/redaction/{referenceDocument}/{idDocument}")
+    public ResponseEntity<?> confirmationRedaction(
+        @PathVariable(name = "referenceDocument") String referenceDocument,
+        @PathVariable(name = "idDocument") String idDocument
+    ){
+        try {
+            int id = Integer.parseInt(idDocument);
+            historiqueService.validerRedaction(referenceDocument, id, redacteur);
+            return ResponseEntity.ok("Votre document a été envoyé en vérification");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    } 
+
+    @PutMapping("/validerDemande/{referenceDocument}/{idDocument}")
+    public ResponseEntity<?> confirmationDemande(
+        @PathVariable(name = "referenceDocument") String referenceDocument,
+        @PathVariable(name = "idDocument") String idDocument
+    ){
+        try {
+            int id = Integer.parseInt(idDocument);
+            historiqueService.validerDemandeRevision(referenceDocument, id, sessionApprobateur);
+            return ResponseEntity.ok("Vous avez validé la demande de vérification");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 
 }

@@ -1,16 +1,16 @@
-CREATE DATABASE base_rh;
-\c base_rh;
+    CREATE DATABASE base_rh;
+    \c base_rh;
 
-CREATE TABLE UTILISATEUR(
-    matricule INT,
-    nom VARCHAR(50),
-    prenom VARCHAR(150),
-    fonction_poste TEXT,
-    service TEXT,
-    lieu_travail VARCHAR(50),
-    email TEXT,
-    PRIMARY KEY(matricule)
-);
+    CREATE TABLE UTILISATEUR(
+        matricule INT,
+        nom VARCHAR(50),
+        prenom VARCHAR(150),
+        fonction_poste TEXT,
+        service TEXT,
+        lieu_travail VARCHAR(50),
+        email TEXT,
+        PRIMARY KEY(matricule)
+    );
 
 INSERT INTO utilisateur(matricule,prenom,fonction_poste,service,lieu_travail) VALUES (80682,'Mika','Planificateur Logistique','Logistique','SIEGE');
 INSERT INTO utilisateur(matricule,prenom,fonction_poste,service,lieu_travail) VALUES (80246,'Michou','Chef de service dépot','Logistique','SIEGE');
