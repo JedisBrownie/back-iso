@@ -320,6 +320,8 @@ INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4121
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4122,4000,'Cru noir');
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4130,4000,'Cuisson');
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5110,5000,'Achats biens et services');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (3100,3000,'Démarche commerciale');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (3200,3000,'Logistique');
 
 
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application) VALUES ('NA1100-20240515-1',1,'Système de management environnemental',5,false,'2024-04-15','2024-05-15');
