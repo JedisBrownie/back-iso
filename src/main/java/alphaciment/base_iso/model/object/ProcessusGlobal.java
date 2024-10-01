@@ -59,6 +59,7 @@ public class ProcessusGlobal {
             while (rs.next()) {
                 int id = rs.getInt("id_processus_global");
                 String name = rs.getString("nom");
+                
                 ProcessusGlobal processus = new ProcessusGlobal(id,name);
                 liste.add(processus);
             }
@@ -69,6 +70,9 @@ public class ProcessusGlobal {
         for(ProcessusGlobal pg : liste){
             pg.setProcessusLie(new ProcessusLie().findProcessusLieByPg(connection,pg.getIdProcessusGlobal()));
         }
+
+        // List<ProcessusLie> listeProcessus = new ProcessusLie(idProcessusGlobal);
+
 
         return liste;
     }

@@ -145,7 +145,8 @@ public class ViewDocument {
         List<String[]> liste = new ArrayList<>();
         String sql =  "SELECT pld.ref_document,pld.id_document,pld.id_processus_lie " +
                       "FROM v_document_en_cours_owner vde " + 
-                      "JOIN processus_lie_document pld ON pld.ref_document = vde.ref_document AND pld.id_document = vde.id_document ";
+                      "JOIN processus_lie_document pld ON pld.ref_document = vde.ref_document AND pld.id_document = vde.id_document " +
+                      "GROUP BY pld.ref_document,pld.id_document,pld.id_processus_lie";
 
         try(Statement statement = connection.createStatement();ResultSet rs = statement.executeQuery(sql)) {
             while(rs.next()){

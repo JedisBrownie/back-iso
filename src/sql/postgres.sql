@@ -528,3 +528,9 @@ INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date
 VALUES ('PR1100-20240316-1',1,2,80246,CURRENT_TIMESTAMP,'')
 
 SELECT 1 FROM redacteur_document WHERE ref_document = 'EN1300-20220812-1' AND id_document = 1 AND id_utilisateur = 80682
+
+
+SELECT pld.ref_document,pld.id_document,pld.id_processus_lie
+FROM v_document_en_cours_owner vde 
+JOIN processus_lie_document pld ON pld.ref_document = vde.ref_document AND pld.id_document = vde.id_document
+GROUP BY pld.ref_document,pld.id_document,pld.id_processus_lie
