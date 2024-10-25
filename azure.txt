@@ -1,0 +1,7 @@
+Pmz8Q~N5xFKnH-lT1brUSMVk7irQY3wThyTKPbSe  valeur 
+
+08ebcf52-88ed-4f91-8dbe-2eb451587517       id secret
+
+47527fd8-a976-4496-9996-1bfbaea73e52       id client
+
+142ecc86-7cb9-43b6-bab8-4be0212ce3c5       id annuaire
