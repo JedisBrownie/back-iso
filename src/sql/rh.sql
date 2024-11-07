@@ -12,6 +12,31 @@
         PRIMARY KEY(matricule)
     );
 
+
+    CREATE TABLE APPLICATION(
+        ref_application VARCHAR(20) PRIMARY KEY,
+        nom_application VARCHAR(80),
+        description_app TEXT
+    );
+
+    CREATE TABLE ROLE_UTILISATEUR(
+        ref_application VARCHAR(20),
+        matricule INT,
+        nom VARCHAR(50),
+        prenom VARCHAR(50),
+        role_utilisateur VARCHAR(20),
+        FOREIGN KEY(ref_application) REFERENCES application(ref_application),
+        FOREIGN KEY(matricule) REFERENCES utilisateur(matricule)
+    );
+
+    CREATE TABLE COMMITE_DIRECTION(
+        matricule INT,
+        nom VARCHAR(50),
+        prenom VARCHAR(150),
+        FOREIGN KEY(matricule) REFERENCES utilisateur(matricule)
+    );
+
+
 INSERT INTO utilisateur(matricule,prenom,fonction_poste,service,lieu_travail) VALUES (80682,'Mika','Planificateur Logistique','Logistique','SIEGE');
 INSERT INTO utilisateur(matricule,prenom,fonction_poste,service,lieu_travail) VALUES (80246,'Michou','Chef de service dépot','Logistique','SIEGE');
 INSERT INTO utilisateur(matricule,prenom,fonction_poste,service,lieu_travail) VALUES (78542,'Rindra','Chef de service planification','Logistique','SIEGE');

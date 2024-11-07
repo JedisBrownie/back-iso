@@ -113,31 +113,29 @@ CREATE TABLE REDACTEUR_DOCUMENT(
 
 -- ### document/contenu ### --
 
--- CREATE TABLE CHAMP(
---     id_champ SERIAL,
---     nom VARCHAR(30),
---     obligatoire BOOLEAN
---     PRIMARY KEY(id_champ)
--- );
+CREATE TABLE CHAMP(
+    ref_champ VARCHAR(90),
+    nom VARCHAR(30),
+    obligatoire BOOLEAN,
+    PRIMARY KEY(ref_champ)
+);
 
--- CREATE TABLE CHAMP_DOCUMENT(
---     ref_document VARCHAR(80) NOT NULL,
---     id_document INT NOT NULL,
---     id_champ INT NOT NULL,
---     affichable INT, 
---     valeur TEXT,
---     FOREIGN KEY(id_document) REFERENCES document(id_document),
---     FOREIGN KEY(id_champ) REFERENCES champ(id_champ)
--- );
+CREATE TABLE CHAMP_DOCUMENT(
+    ref_document VARCHAR(90) NOT NULL,
+    id_document INT NOT NULL,
+    ref_champ VARCHAR(40), 
+    valeur TEXT,
+    FOREIGN KEY(ref_document,id_document) REFERENCES document(ref_document,id_document),
+    FOREIGN KEY(ref_champ) REFERENCES champ(ref_champ)
+);
 
--- CREATE TABLE FICHIER_DOCUMENT(
---     ref_document VARCHAR(80) NOT NULL,
---     id_document INT NOT NULL,
---     emplacement TEXT,
---     nom TEXT,
---     FOREIGN KEY(id_document) REFERENCES document(id_document),
---     FOREIGN KEY(ref_document) REFERENCES document(ref_document),     
--- );
+CREATE TABLE FICHIER_DOCUMENT(
+    ref_document VARCHAR(80) NOT NULL,
+    id_document INT NOT NULL,
+    chemin TEXT,
+    nom TEXT,
+    FOREIGN KEY(ref_document,id_document) REFERENCES document(ref_document,id_document)  
+);
 
 -- ## trigger ## --
     -- CREATE TRIGGER trg_check_approbateur_validateur
@@ -534,3 +532,23 @@ SELECT pld.ref_document,pld.id_document,pld.id_processus_lie
 FROM v_document_en_cours_owner vde 
 JOIN processus_lie_document pld ON pld.ref_document = vde.ref_document AND pld.id_document = vde.id_document
 GROUP BY pld.ref_document,pld.id_document,pld.id_processus_lie
+
+
+
+
+CREATE OR REPLACE VIEW v_document_archive AS(
+    SELECT h1.id_histo,ver.ref_document,ver.id_document,dc.titre,h1.id_etat as etat,h1.date_heure_etat,dc.date_archive,COALESCE(vnb.nombre_revision,0) as nombre_revision,
+    CASE
+        WHEN h1.id_etat = ed.id_etat THEN ed.status
+    END as status
+    FROM historique_etat h1
+    JOIN v_etat_recent ver 
+        ON h1.id_histo = ver.id_histo
+    JOIN etat_document ed 
+        ON ed.id_etat = h1.id_etat
+    JOIN document dc 
+        ON dc.ref_document = ver.ref_document AND dc.id_document = ver.id_document
+    LEFT JOIN v_nombre_revision vnb 
+        ON vnb.ref_document = ver.ref_document
+    WHERE h1.id_etat = 9
+);
