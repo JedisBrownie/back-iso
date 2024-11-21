@@ -28,7 +28,7 @@ public class ProcessusLie {
 
     public List<ProcessusLie> findProcessusLieByPg(Connection connection,int idProcessusGlobal) throws Exception{
         List<ProcessusLie> liste = new ArrayList<>();
-        String sql = "SELECT id_processus_lie,nom FROM processus_lie WHERE id_processus_global = ?";
+        String sql = "SELECT id_processus_lie,nom FROM processus_lie WHERE id_processus_global = ? ORDER BY id_processus_lie";
         
         try(PreparedStatement statement = connection.prepareStatement(sql);){
             statement.setInt(1, idProcessusGlobal);

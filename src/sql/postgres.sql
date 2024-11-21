@@ -312,14 +312,45 @@ INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1200
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (1300,1000,'Communication');
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (2100,2000,'Ressources humaines');
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (2300,2000,'Travaux neufs');
-INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (2400,2000,'Système documentaire');
-INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4111,4000,'Extraction matières premières');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (2400,2000,'Systeme documentaire');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4111,4000,'Extraction matieres premieres');
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4121,4000,'Cru blanc');
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4122,4000,'Cru noir');
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4130,4000,'Cuisson');
-INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5110,5000,'Achats biens et services');
-INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (3100,3000,'Démarche commerciale');
+
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4140,4000,'Moulure Ciments');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4150,4000,'Chargement sacs');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (4170,4000,'Exploitation silo');
+
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5300,5000,'Maintenance');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5400,5000,'Gestion des dechets');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5500,5000,'Hygiene et securite');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5600,5000,'CSR');
+
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5110,5100,'Achats biens et services');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5120,5100,'Comptabilite');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5130,5100,'Controle de gestion');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5140,5100,'Controle des stocks');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (5150,5100,'Informatique');
+
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (3100,3000,'Demarche commerciale');
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (3200,3000,'Logistique');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (3300,3000,'Suivi clientele');
+
+
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (6100,6000,'Identification des situations d''urgence et capacite a reagir');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (6200,6000,'Revision des moyens de preventien et d''intervention');
+
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (9100,9000,'Reclamations');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (9200,9000,'Actions Correctives/Actions Preventives');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (9400,9000,'Mesures');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (9410,9000,'Controle qualite');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (9420,9000,'Metrologie');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (9500,9000,'Audits');
+
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (9210,9200,'Maitrise du produit non-conforme');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (9220,9200,'Maitrise des non-conformites environnementales');
+INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (9230,9200,'Maitrise des incidents / accidents');
 
 
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application) VALUES ('NA1100-20240515-1',1,'Système de management environnemental',5,false,'2024-04-15','2024-05-15');
@@ -332,6 +363,26 @@ INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_cr
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ('EN1300-20220812-1',1,'Directive sur la communication',4,false,'2022-07-22');
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,date_archive,id_validateur,id_approbateur) VALUES ('FI2100-20230908-1',1,'Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga',3,false,'2023-08-08','2023-09-08','2023-12-15',78542,24566);
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI2100-20230908-1',2,'Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga',3,true,'2023-12-15','2024-01-15',78542,24566);
+
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI2100-20230710-1',2,'Planification livraison logistique',2,false,'2023-07-05','2024-05-15',78542,24566);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('FI2100-20230710-1',1,3000);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI2100-20230710-1',1,3200);
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat)VALUES('FI2100-20230710-1',1,6,78542,'2024-05-15 10:20');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat)VALUES('FI2100-20230710-1',1,8,78542,'2024-05-15 10:20');
+
+
+
+
+
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI4150-20241112-2',1,'Gestion des EPI',3,false,'2023-11-12','2024-11-18',78542,24566);
+INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('FI4150-20241112-2',1,4000);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI4150-20241112-2',1,4150);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI4150-20241112-2',1,4130);
+INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI4150-20241112-2',1,4111);
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat)VALUES('FI4150-20241112-2',1,6,78542,'2024-11-12 16:10');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat)VALUES('FI4150-20241112-2',1,8,78542,'2024-11-12 16:10');
+
+
 
 
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('NA1100-20240515-1',1,1000);
@@ -517,15 +568,15 @@ LEFT JOIN processus_lie_document pld ON pld.ref_document = vde.ref_document AND 
 WHERE owner = 80246
 
 
-INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('PR1100-20240316-1',1,2100);
+-- INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('PR1100-20240316-1',1,2100);
 
-INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI2300-20240925-01',1,2300);
+-- INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI2300-20240925-01',1,2300);
 
 
-INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)
-VALUES ('PR1100-20240316-1',1,2,80246,CURRENT_TIMESTAMP,'')
+-- INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat,motif)
+-- VALUES ('PR1100-20240316-1',1,2,80246,CURRENT_TIMESTAMP,'')
 
-SELECT 1 FROM redacteur_document WHERE ref_document = 'EN1300-20220812-1' AND id_document = 1 AND id_utilisateur = 80682
+-- SELECT 1 FROM redacteur_document WHERE ref_document = 'EN1300-20220812-1' AND id_document = 1 AND id_utilisateur = 80682
 
 
 SELECT pld.ref_document,pld.id_document,pld.id_processus_lie

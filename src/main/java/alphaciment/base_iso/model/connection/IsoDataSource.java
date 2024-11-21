@@ -22,6 +22,7 @@ public class IsoDataSource {
     static{
         isods.setUrl("jdbc:postgresql://localhost:5432/base_iso");
         isods.setUsername("postgres");
+        
         isods.setPassword("root");
         isods.setMinIdle(10);
         isods.setMaxIdle(25);
