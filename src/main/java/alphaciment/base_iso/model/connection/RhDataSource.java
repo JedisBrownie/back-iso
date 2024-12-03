@@ -20,7 +20,7 @@ public class RhDataSource {
     private static final BasicDataSource rhds = new BasicDataSource();
 
     static{
-        rhds.setUrl("jdbc:postgresql://localhost:5432/base_rh");
+        rhds.setUrl("jdbc:postgresql://localhost:5432/alpha_ciment_hr");
         rhds.setUsername("postgres");
         rhds.setPassword("root");
         rhds.setMinIdle(10);
