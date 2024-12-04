@@ -20,9 +20,9 @@ public class ProcessusService {
         try{
             ProcessusGlobal pr = new ProcessusGlobal();
             liste = pr.getAllProcessusGlobal(connection);
-        }catch(Exception e){
+        }catch(Exception e) {
             throw e;
-        }finally{
+        }finally {
             connection.close();
         }
         return liste;
@@ -36,7 +36,7 @@ public class ProcessusService {
             liste = pl.findProcessusLieByPg(connection, idProcessusGlobal);
         } catch (Exception e) {
             throw e;
-        }finally{
+        }finally {
             connection.close();
         }
         return liste;
@@ -49,9 +49,9 @@ public class ProcessusService {
         try{
             ProcessusGlobal pg = new ProcessusGlobal();
             liste = pg.findProcessusOfDocument(reference, id, connection);
-        }catch(Exception e){
+        }catch(Exception e) {
             throw e;
-        }finally{
+        }finally {
             connection.close();
         }
         return liste;
@@ -63,9 +63,9 @@ public class ProcessusService {
         try{
             ProcessusLie pg = new ProcessusLie();
             liste = pg.findProcessusLieOfDocument(connection, reference, id);
-        }catch(Exception e){
+        }catch(Exception e) {
             throw e;
-        }finally{
+        }finally {
             connection.close();
         }
         return liste;
