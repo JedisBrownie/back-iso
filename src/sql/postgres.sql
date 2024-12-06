@@ -353,34 +353,69 @@ INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (9220
 INSERT INTO processus_lie(id_processus_lie,id_processus_global,nom) VALUES (9230,9200,'Maitrise des incidents / accidents');
 
 
+INSERT INTO champ (ref_champ, nom) VALUES
+('champMiseApplication', 'dateApplication'),
+('champConfidentiel', 'confidentiel'),
+('choixIso9001', 'iso9001'),
+('choixIso14001', 'iso14001'),
+('choixSecurite', 'securite'),
+('choixSiteIso9001', 'siteIso9001'),
+('choixSiteIso14001', 'siteIso14001'),
+('choixSiteSecurite', 'siteSecurite'),
+('choixProcessusGlobal', 'processusGlobal'),
+('choixProcessusLie', 'processusLie'),
+('champFinalite', 'finalite'),
+('champDomaineApplication', 'domaineApplication'),
+('choixPilote', 'piloteProcessus'),
+('champConditionContrainte', 'conditionContrainte'),
+('champDonneeEntre', 'donneeEntree'),
+('champDonneeSortie', 'donneeSortie'),
+('champProcessusAppelant', 'processusAppelant'),
+('champProcessusAppele', 'procesussAppele'),
+('choixDiffusionEmail', 'diffusionEmail'),
+('choixDiffusionPapier', 'diffusionPapier'),
+('choixRedacteur', 'redacteur'),
+('choixVerificateur', 'verificateur'),
+('choixApprobateur', 'approbateur'),
+('champQuiRealise', 'quiRealise'),
+('champQuiDecide', 'quiDecide'),
+('champFaitQuoiDescription', 'quiFaitQuoi'),
+('champLienMoyenDescription', 'lienMoyen'),
+('champFaitQuoiCommentaire', 'quiFaitQuoiCommentaire'),
+('champLienMoyenCommentaire', 'lienMoyenCommentaire'),
+('champPerformanceAttendues', 'performanceAttendues'),
+('champPropositionSurveillance', 'propositionSurveillance'),
+('choixLecteur', 'lecteur'),
+('champChampLibre', 'champLibre');
+
+
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application) VALUES ('NA1100-20240515-1',1,'Système de management environnemental',5,false,'2024-04-15','2024-05-15');
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,id_validateur,id_approbateur) VALUES ('PR1100-20240316-1',1,'Procédure de sécurisation des matières premières',1,false,'2024-02-16',80682,24566);
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI1100-20220905-1',1,'Gestion des changements',3,false,'2022-08-05','2022-09-05',80682,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,matricule_validateur,matricule_approbateur) VALUES ('PR1100-20240316-1',1,'Procédure de sécurisation des matières premières',1,false,'2024-02-16',80682,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,matricule_validateur,matricule_approbateur) VALUES ('FI1100-20220905-1',1,'Gestion des changements',3,false,'2022-08-05','2022-09-05',80682,24566);
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application) VALUES ('EN1100-20220605-1',1,'Analyse des risques Ibity',4,false,'2022-05-05','2022-06-05');
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application) VALUES ('EN1100-20221208-1',1,'Analyse des risques dépôts',4,true,'2022-11-08','2022-12-08');
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('PR1300-20230922-1',1,'Communication',1,false,'2023-08-22','2023-09-22',78542,24566);
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI1300-20230211-1',1,'Demande de support en communication',3,false,'2023-01-11','2023-02-11',80246,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,matricule_validateur,matricule_approbateur) VALUES ('PR1300-20230922-1',1,'Communication',1,false,'2023-08-22','2023-09-22',78542,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,matricule_validateur,matricule_approbateur) VALUES ('FI1300-20230211-1',1,'Demande de support en communication',3,false,'2023-01-11','2023-02-11',80246,24566);
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation) VALUES ('EN1300-20220812-1',1,'Directive sur la communication',4,false,'2022-07-22');
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,date_archive,id_validateur,id_approbateur) VALUES ('FI2100-20230908-1',1,'Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga',3,false,'2023-08-08','2023-09-08','2023-12-15',78542,24566);
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI2100-20230908-1',2,'Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga',3,true,'2023-12-15','2024-01-15',78542,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,date_archive,matricule_validateur,matricule_approbateur) VALUES ('FI2100-20230908-1',1,'Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga',3,false,'2023-08-08','2023-09-08','2023-12-15',78542,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,matricule_validateur,matricule_approbateur) VALUES ('FI2100-20230908-1',2,'Déplacement par transport en commun de tout le personnel de Cementis(Madagascar) sur les axes Antsirabe - Tamatave - Majunga',3,true,'2023-12-15','2024-01-15',78542,24566);
 
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI2100-20230710-1',2,'Planification livraison logistique',2,false,'2023-07-05','2024-05-15',78542,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,matricule_validateur,matricule_approbateur) VALUES ('FI2100-20230710-1',2,'Planification livraison logistique',2,false,'2023-07-05','2024-05-15',78542,24566);
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('FI2100-20230710-1',1,3000);
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI2100-20230710-1',1,3200);
-INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat)VALUES('FI2100-20230710-1',1,6,78542,'2024-05-15 10:20');
-INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat)VALUES('FI2100-20230710-1',1,8,78542,'2024-05-15 10:20');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,matricule_utilisateur,date_heure_etat)VALUES('FI2100-20230710-1',1,6,78542,'2024-05-15 10:20');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,matricule_utilisateur,date_heure_etat)VALUES('FI2100-20230710-1',1,8,78542,'2024-05-15 10:20');
 
 
 
 
-
-INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,id_validateur,id_approbateur) VALUES ('FI4150-20241112-2',1,'Gestion des EPI',3,false,'2023-11-12','2024-11-18',78542,24566);
+INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application,matricule_validateur,matricule_approbateur) VALUES ('FI4150-20241112-2',1,'Gestion des EPI',3,false,'2023-11-12','2024-11-18',78542,24566);
 INSERT INTO processus_global_document(ref_document,id_document,id_processus_global) VALUES ('FI4150-20241112-2',1,4000);
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI4150-20241112-2',1,4150);
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI4150-20241112-2',1,4130);
 INSERT INTO processus_lie_document(ref_document,id_document,id_processus_lie) VALUES ('FI4150-20241112-2',1,4111);
-INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat)VALUES('FI4150-20241112-2',1,6,78542,'2024-11-12 16:10');
-INSERT INTO historique_etat(ref_document,id_document,id_etat,id_utilisateur,date_heure_etat)VALUES('FI4150-20241112-2',1,8,78542,'2024-11-12 16:10');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,matricule_utilisateur,date_heure_etat)VALUES('FI4150-20241112-2',1,6,78542,'2024-11-12 16:10');
+INSERT INTO historique_etat(ref_document,id_document,id_etat,matricule_utilisateur,date_heure_etat)VALUES('FI4150-20241112-2',1,8,78542,'2024-11-12 16:10');
 
 
 
@@ -548,9 +583,9 @@ CREATE OR REPLACE VIEW v_document_en_cours AS (
 CREATE OR REPLACE VIEW v_document_en_cours_owner AS(
     SELECT vd.ref_document,vd.id_document,td.nom,vd.titre,vd.etat,vd.date_creation,vd.confidentiel,vd.nombre_revision,vd.modifiable,vd.status,
         CASE 
-            WHEN vd.etat = 1 THEN rd.id_utilisateur
-            WHEN vd.etat = 2 THEN dc.id_validateur
-            WHEN vd.etat = 4 THEN dc.id_approbateur
+            WHEN vd.etat = 1 THEN rd.matricule_utilisateur
+            WHEN vd.etat = 2 THEN dc.matricule_validateur
+            WHEN vd.etat = 4 THEN dc.matricule_approbateur
         END AS owner
     FROM v_document_en_cours vd 
     JOIN document dc 
@@ -603,3 +638,12 @@ CREATE OR REPLACE VIEW v_document_archive AS(
         ON vnb.ref_document = ver.ref_document
     WHERE h1.id_etat = 9
 );
+
+
+
+
+
+
+
+
+drop view v_document,v_document_applicable,v_document_archive,v_document_en_cours,v_etat_recent,v_nombre_revision,v_processus;

@@ -31,7 +31,7 @@ public class DocumentController {
         @RequestParam(name = "titre") String titre,
         @RequestParam(name = "type") String type,
         @RequestParam(name = "processus") String processusLie,
-        @RequestParam(name = "confidentiel") String confidentiel )
+        @RequestParam(name = "confidentiel") String confidentiel )  
     {
         if(titre.isEmpty() && type.isEmpty() && confidentiel.isEmpty()){
             return ResponseEntity.badRequest().body("Veuillez remplir tous les champs");

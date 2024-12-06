@@ -14,11 +14,11 @@ import alphaciment.base_iso.model.object.Utilisateur;
 public class DocumentService {
 
 
-    public void addDocument(String titre,int type,boolean confidentiel,int idProcessusLie) throws Exception{
+    public void addDocument(String titre, int type, boolean confidentiel, int idProcessusLie) throws Exception {
         Document doc = new Document();
         // int idProcessusGlobal = 5000;
         try( Connection connection = IsoDataSource.getConnection();){
-            doc.addDocument(titre, idProcessusLie, type, confidentiel, connection);
+            doc.addDocument(connection, titre, type, idProcessusLie, confidentiel);
         } catch (Exception e) {
             throw e;
         }
