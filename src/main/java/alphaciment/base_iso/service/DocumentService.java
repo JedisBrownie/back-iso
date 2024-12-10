@@ -10,14 +10,15 @@ import alphaciment.base_iso.model.object.HistoriqueEtat;
 import alphaciment.base_iso.model.object.ProcessusGlobal;
 import alphaciment.base_iso.model.object.ProcessusLie;
 import alphaciment.base_iso.model.object.Utilisateur;
+
+
 @Service
 public class DocumentService {
-
 
     public void addDocument(String titre, int type, boolean confidentiel, int idProcessusLie) throws Exception {
         Document doc = new Document();
         // int idProcessusGlobal = 5000;
-        try( Connection connection = IsoDataSource.getConnection();){
+        try(Connection connection = IsoDataSource.getConnection()) {
             doc.addDocument(connection, titre, type, idProcessusLie, confidentiel);
         } catch (Exception e) {
             throw e;
@@ -130,11 +131,5 @@ public class DocumentService {
         
         return val;
     }
-
-
-
-
-
-
 
 }
