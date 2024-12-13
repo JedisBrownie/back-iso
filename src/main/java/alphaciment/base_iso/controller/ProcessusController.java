@@ -18,7 +18,7 @@ import alphaciment.base_iso.service.ViewModelService;
 
 @RestController
 @RequestMapping("/processus")
-@CrossOrigin(origins="*", allowedHeaders="*",methods={RequestMethod.GET})
+@CrossOrigin(origins="http://10.192.193.81:3000", allowedHeaders="*",methods={RequestMethod.GET})
 
 public class ProcessusController {
 

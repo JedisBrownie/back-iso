@@ -21,9 +21,10 @@ public class RhDataSource {
 
     static{
         rhds.setUrl("jdbc:postgresql://localhost:5432/alpha_ciment_hr");
+        // rhds.setUrl("jdbc:postgresql://10.192.193.81:5432/alpha_ciment_hr");
         rhds.setUsername("postgres");
         rhds.setPassword("root");
-        rhds.setMinIdle(10);
+        rhds.setMinIdle(10);    
         rhds.setMaxIdle(25);
         rhds.setMaxOpenPreparedStatements(300);
     }
