@@ -1,6 +1,8 @@
 CREATE SEQUENCE etat_document_id_etat_seq START WITH 1 INCREMENT BY 1;
-
 CREATE SEQUENCE type_document_id_type_seq START WITH 1 INCREMENT BY 1;
+
+CREATE SEQUENCE seq_reference START WITH 1 INCREMENT BY 1;
+
 
 CREATE  TABLE champ ( 
 	ref_champ            varchar(90)  NOT NULL  ,
@@ -46,6 +48,7 @@ CREATE  TABLE document (
 	date_mise_application date    ,
 	date_archive         date    ,
 	confidentiel         boolean    ,
+	date_modification    timestamp(0)    ,
 	CONSTRAINT document_pkey PRIMARY KEY ( ref_document, id_document ),
 	CONSTRAINT document_id_type_fkey FOREIGN KEY ( id_type ) REFERENCES type_document( id_type )   
  );
@@ -100,6 +103,14 @@ CREATE  TABLE redacteur_document (
 	CONSTRAINT redacteur_document_ref_document_fkey FOREIGN KEY ( ref_document, id_document ) REFERENCES document( ref_document, id_document )   
  );
 
+CREATE  TABLE redaction_document ( 
+	ref_document         varchar(80)  NOT NULL  ,
+	id_document          integer  NOT NULL  ,
+	matricule_utilisateur varchar(50)  NOT NULL  ,
+	redaction_document_date date    ,
+	CONSTRAINT fk_redaction_document_document FOREIGN KEY ( ref_document, id_document ) REFERENCES document( ref_document, id_document )   
+ );
+
 CREATE  TABLE validateur_document ( 
 	ref_document         varchar(80)  NOT NULL  ,
 	id_document          integer  NOT NULL  ,
@@ -107,11 +118,27 @@ CREATE  TABLE validateur_document (
 	CONSTRAINT fk_validateur_document FOREIGN KEY ( ref_document, id_document ) REFERENCES document( ref_document, id_document )   
  );
 
+CREATE  TABLE validation_document ( 
+	ref_document         varchar(80)  NOT NULL  ,
+	id_document          integer  NOT NULL  ,
+	matricule_utilisateur varchar(50)  NOT NULL  ,
+	validation_document_date date    ,
+	CONSTRAINT fk_validation_document FOREIGN KEY ( ref_document, id_document ) REFERENCES document( ref_document, id_document )   
+ );
+
 CREATE  TABLE approbateur_document ( 
 	ref_document         varchar(80)  NOT NULL  ,
 	id_document          integer  NOT NULL  ,
 	marticule_utilisateur varchar(50)  NOT NULL  ,
 	CONSTRAINT fk_approbateur_document FOREIGN KEY ( ref_document, id_document ) REFERENCES document( ref_document, id_document )   
+ );
+
+CREATE  TABLE approbation_document ( 
+	ref_document         varchar(80)  NOT NULL  ,
+	id_document          integer  NOT NULL  ,
+	matricule_utilisateur varchar(50)  NOT NULL  ,
+	approbation_document_date date    ,
+	CONSTRAINT fk_approbation_document FOREIGN KEY ( ref_document, id_document ) REFERENCES document( ref_document, id_document )   
  );
 
 CREATE  TABLE champ_document ( 
@@ -282,3 +309,112 @@ CREATE TRIGGER trg_before_insert_document BEFORE INSERT ON public.document FOR E
 
 CREATE TRIGGER trg_before_insert_historique BEFORE INSERT ON public.historique_etat FOR EACH ROW EXECUTE PROCEDURE generate_reference_historique();
 
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champMiseApplication', 'dateApplication', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champConfidentiel', 'confidentiel', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixIso9001', 'iso9001', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixIso14001', 'iso14001', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixSecurite', 'securite', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixSiteIso9001', 'siteIso9001', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixSiteIso14001', 'siteIso14001', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixSiteSecurite', 'siteSecurite', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixProcessusGlobal', 'processusGlobal', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixProcessusLie', 'processusLie', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champFinalite', 'finalite', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champDomaineApplication', 'domaineApplication', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixPilote', 'piloteProcessus', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champConditionContrainte', 'conditionContrainte', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champDonneeEntre', 'donneeEntree', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champDonneeSortie', 'donneeSortie', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champProcessusAppelant', 'processusAppelant', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champProcessusAppele', 'procesussAppele', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixDiffusionEmail', 'diffusionEmail', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixDiffusionPapier', 'diffusionPapier', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixRedacteur', 'redacteur', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixVerificateur', 'verificateur', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixApprobateur', 'approbateur', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champQuiRealise', 'quiRealise', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champQuiDecide', 'quiDecide', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champFaitQuoiDescription', 'quiFaitQuoi', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champLienMoyenDescription', 'lienMoyen', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champFaitQuoiCommentaire', 'quiFaitQuoiCommentaire', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champLienMoyenCommentaire', 'lienMoyenCommentaire', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champPerformanceAttendues', 'performanceAttendues', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champPropositionSurveillance', 'propositionSurveillance', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'choixLecteur', 'lecteur', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champChampLibre', 'champLibre', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champTitre', 'titre', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champIndicateurEventuel', 'indicateurEventuel', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champEvenementFrequence', 'evenementFrequence', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champParticipant', 'participant', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champPointAbordes', 'pointAbordes', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champDocument', 'document', false);
+INSERT INTO champ( ref_champ, nom, obligatoire ) VALUES ( 'champDocumentDeSupport', 'documentDeSupport', false);
+
+INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 1, 'Brouillon', 'Brouillon');
+INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 2, 'Redaction', 'En cours de verification');
+INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 3, 'Invalidation', 'Non valide');
+INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 4, 'Validation', 'En cours d''approbation');
+INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 5, 'D‚sapprobation', 'Non approuve');
+INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 6, 'Approbation', 'Applicable');
+INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 7, 'Demande r‚vision', 'Applicable');
+INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 8, 'Modifiable', 'Applicable');
+INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 9, 'Archives', 'Archive');
+
+INSERT INTO processus_global( id_processus_global, nom ) VALUES ( 1000, 'Processus Management');
+INSERT INTO processus_global( id_processus_global, nom ) VALUES ( 2000, 'Ressources');
+INSERT INTO processus_global( id_processus_global, nom ) VALUES ( 3000, 'Processus Commercial');
+INSERT INTO processus_global( id_processus_global, nom ) VALUES ( 4000, 'Processus Production');
+INSERT INTO processus_global( id_processus_global, nom ) VALUES ( 5000, 'Activites Supports');
+INSERT INTO processus_global( id_processus_global, nom ) VALUES ( 5100, 'Direction Administrative et financiere');
+INSERT INTO processus_global( id_processus_global, nom ) VALUES ( 6000, 'Gestion de crise');
+INSERT INTO processus_global( id_processus_global, nom ) VALUES ( 9000, 'Surveillance et mesures');
+INSERT INTO processus_global( id_processus_global, nom ) VALUES ( 9200, 'Non Conformites');
+
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 1100, 1000, 'Planification');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 1200, 1000, 'Revue de direction');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 1300, 1000, 'Communication');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 2100, 2000, 'Ressources humaines');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 2300, 2000, 'Travaux neufs');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 2400, 2000, 'Systeme documentaire');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 4111, 4000, 'Extraction matieres premieres');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 4121, 4000, 'Cru blanc');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 4122, 4000, 'Cru noir');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 4130, 4000, 'Cuisson');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 4140, 4000, 'Moulure Ciments');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 4150, 4000, 'Chargement sacs');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 4170, 4000, 'Exploitation silo');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 5300, 5000, 'Maintenance');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 5400, 5000, 'Gestion des dechets');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 5500, 5000, 'Hygiene et securite');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 5600, 5000, 'CSR');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 5110, 5100, 'Achats biens et services');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 5120, 5100, 'Comptabilite');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 5130, 5100, 'Controle de gestion');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 5140, 5100, 'Controle des stocks');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 5150, 5100, 'Informatique');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 3100, 3000, 'Demarche commerciale');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 3200, 3000, 'Logistique');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 3300, 3000, 'Suivi clientele');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 6100, 6000, 'Identification des situations d''urgence et capacite a reagir');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 6200, 6000, 'Revision des moyens de prevention et d''intervention');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 9100, 9000, 'Reclamations');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 9200, 9000, 'Actions Correctives/Actions Preventives');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 9400, 9000, 'Mesures');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 9410, 9000, 'Controle qualite');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 9420, 9000, 'Metrologie');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 9500, 9000, 'Audits');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 9210, 9200, 'Maitrise du produit non-conforme');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 9220, 9200, 'Maitrise des non-conformites environnementales');
+INSERT INTO processus_lie( id_processus_lie, id_processus_global, nom ) VALUES ( 9230, 9200, 'Maitrise des incidents / accidents');
+
+INSERT INTO type_document( id_type, nom ) VALUES ( 1, 'Processus');
+INSERT INTO type_document( id_type, nom ) VALUES ( 2, 'Sous Processus');
+INSERT INTO type_document( id_type, nom ) VALUES ( 3, 'Fiche d''instruction');
+INSERT INTO type_document( id_type, nom ) VALUES ( 4, 'Enregistrement');
+INSERT INTO type_document( id_type, nom ) VALUES ( 5, 'Navigateur');
+
+
+
+
+ALTER SEQUENCE seq_reference RESTART WITH 1;
+truncate table document restart identity cascade;

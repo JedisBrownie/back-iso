@@ -386,7 +386,8 @@ INSERT INTO champ (ref_champ, nom) VALUES
 ('champPerformanceAttendues', 'performanceAttendues'),
 ('champPropositionSurveillance', 'propositionSurveillance'),
 ('choixLecteur', 'lecteur'),
-('champChampLibre', 'champLibre');
+('champChampLibre', 'champLibre'),
+('champDocumentDeSupport', 'documentDeSupport');
 
 
 INSERT INTO document(ref_document,id_document,titre,id_type,confidentiel,date_creation,date_mise_application) VALUES ('NA1100-20240515-1',1,'Système de management environnemental',5,false,'2024-04-15','2024-05-15');
