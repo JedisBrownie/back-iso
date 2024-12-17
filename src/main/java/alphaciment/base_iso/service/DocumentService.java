@@ -15,11 +15,12 @@ import alphaciment.base_iso.model.object.Document;
 public class DocumentService {
 
 
-    public int addDocumentDraft(String titre, int type, Date miseEnApplication, boolean confidentiel, String userMatricule) throws Exception {
+    public int addDocumentDraft(String titre, int type, Date miseEnApplication, boolean confidentiel, String userMatricule, String data) throws Exception {
         Document document = new Document();
 
         try (Connection connection = IsoDataSource.getConnection()) {
-            document.addDocumentDraft(connection, titre, type, miseEnApplication, confidentiel, userMatricule);
+            Document lastDoc = document.addDocumentDraft(connection, titre, type, miseEnApplication, confidentiel, userMatricule);
+            document.addDocumentFields(lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), data);
         } catch (Exception e) {
             throw e;
         }

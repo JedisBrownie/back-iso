@@ -40,8 +40,10 @@ public class DocumentController {
         @RequestParam String type,
         @RequestParam(name = "date_mise_application") Date miseEnApplication,
         @RequestParam String confidentiel,
-        @RequestParam(name = "user_matricule") String userMatricule)
+        @RequestParam(name = "user_matricule") String userMatricule,
+        @RequestParam String data)
     {
+        System.out.println("Data received: " + data);
         if(titre.isEmpty() && type.isEmpty() && confidentiel.isEmpty()) {
             return ResponseEntity.badRequest().body("Veuillez remplir tous les champs");
         }
@@ -50,7 +52,7 @@ public class DocumentController {
         boolean confid = Boolean.parseBoolean(confidentiel);     
 
         try {
-            documentService.addDocumentDraft(titre, idType, miseEnApplication, confid, userMatricule);
+            documentService.addDocumentDraft(titre, idType, miseEnApplication, confid, userMatricule, data);
             return ResponseEntity.ok("Document enregistré");
         } catch (Exception e) {
             e.printStackTrace();

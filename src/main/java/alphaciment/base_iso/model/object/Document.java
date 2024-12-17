@@ -44,7 +44,7 @@ public class Document {
     /**
      * Methods
      */
-    public void addDocumentDraft(Connection connection, String titre, int type, Date miseEnApplication, boolean confidentiel, String userMatricule) throws Exception {
+    public Document addDocumentDraft(Connection connection, String titre, int type, Date miseEnApplication, boolean confidentiel, String userMatricule) throws Exception {
         String insertDocSql = "INSERT INTO document(titre, id_type, date_creation, date_mise_application, confidentiel) VALUES (?, ?, CURRENT_DATE, ?, ?)";
         String lastDocSql = "SELECT ref_document, id_document FROM document WHERE ref_document = ?";
         String docStateSql = "INSERT INTO historique_etat(ref_document, id_document, id_etat, matricule_utilisateur, date_heure_etat) VALUES (?, ?, 1, ?, CURRENT_TIMESTAMP)";
@@ -64,7 +64,7 @@ public class Document {
                 try (ResultSet generatedKeys = docStatement.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         lastId = generatedKeys.getString(1);
-                        System.out.println("Generated ID: " + lastId);
+                        // System.out.println("Generated ID: " + lastId);
                     }
                 }
                 docStatement.close();
@@ -82,8 +82,6 @@ public class Document {
                 lastDocStatement.close();
             }
 
-            // System.out.println(lastDoc.getReferenceDocument());
-            // System.out.println(lastDoc.getIdDocument());
 
             try (PreparedStatement docStateStatement = connection.prepareStatement(docStateSql)) {
                 docStateStatement.setString(1, lastDoc.getReferenceDocument());
@@ -102,6 +100,13 @@ public class Document {
             connection.setAutoCommit(true);
             connection.close();
         }
+
+        return lastDoc;
+    }
+
+
+    public void addDocumentFields(String refDocument, int idDocument, String data) {
+        System.out.println(data);
     }
 
 
