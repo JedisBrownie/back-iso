@@ -1,10 +1,14 @@
 package alphaciment.base_iso.model.object;
 
+import java.io.InputStream;
+import java.net.URL;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -44,6 +48,9 @@ public class Document {
     /**
      * Methods
      */
+    /**
+     * Add Document Draft
+     */
     public Document addDocumentDraft(Connection connection, String titre, int type, Date miseEnApplication, boolean confidentiel, String userMatricule) throws Exception {
         String insertDocSql = "INSERT INTO document(titre, id_type, date_creation, date_mise_application, confidentiel) VALUES (?, ?, CURRENT_DATE, ?, ?)";
         String lastDocSql = "SELECT ref_document, id_document FROM document WHERE ref_document = ?";
@@ -82,7 +89,6 @@ public class Document {
                 lastDocStatement.close();
             }
 
-
             try (PreparedStatement docStateStatement = connection.prepareStatement(docStateSql)) {
                 docStateStatement.setString(1, lastDoc.getReferenceDocument());
                 docStateStatement.setInt(2, lastDoc.getIdDocument());
@@ -98,15 +104,131 @@ public class Document {
             throw e;
         } finally {
             connection.setAutoCommit(true);
-            connection.close();
         }
 
         return lastDoc;
     }
 
 
-    public void addDocumentFields(String refDocument, int idDocument, String data) {
-        System.out.println(data);
+    /**
+     * Add Document Fields
+     */
+    public void addDocumentFields(Connection connection, String refDocument, int idDocument, String fieldRef, String fieldValue) throws Exception {
+        String sql = "INSERT INTO champ_document(ref_document, id_document, ref_champ, valeur) VALUES (?, ?, ?, ?)";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, refDocument);
+            statement.setInt(2, idDocument);
+            statement.setString(3, fieldRef);
+            statement.setString(4, fieldValue);
+
+            statement.executeUpdate();
+            statement.close();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+
+    /**
+     * Add Document Process
+     */
+    public void addDocumentProcess(Connection connection, String refDocument, int idDocument, int processId, String processType) throws Exception {
+        String sql = null;
+        switch (processType) {
+            case "processusGlobal":
+                sql = "INSERT INTO processus_global_document(ref_document, id_document, id_processus_global) VALUES (?, ?, ?)";
+                break;
+            case "processusLie":
+                sql = "INSERT INTO processus_lie_document(ref_document, id_document, id_processus_lie) VALUES (?, ?, ?)";
+                break;
+            default:
+                break;
+        }
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, refDocument);
+            statement.setInt(2, idDocument);
+            statement.setInt(3, processId);
+
+            statement.executeUpdate();
+            statement.close();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+
+    /**
+     * Add Document User Role
+     */
+    public void addDocumentUserRole(Connection connection, String refDocument, int idDocument, String userMatricule, String userType) throws Exception {
+        String sql = null;
+        switch (userType) {
+            case "redacteur":
+                sql = "INSERT INTO redacteur_document(ref_document, id_document, matricule_utilisateur) VALUES (?, ?, ?)";
+                break;
+            case "verificateur":
+                sql = "INSERT INTO verificateur_document(ref_document, id_document, matricule_utilisateur) VALUES (?, ?, ?)";
+                break;
+            case "approbateur":
+                sql = "INSERT INTO approbateur_document(ref_document, id_document, matricule_utilisateur) VALUES (?, ?, ?)";
+                break;
+            default:
+                break;
+        }
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, refDocument);
+            statement.setInt(2, idDocument);
+            statement.setString(3, userMatricule);
+
+            statement.executeUpdate();
+            statement.close();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+
+    /**
+     * Add Mail Diffusion
+     */
+    public void addEmailDiffusion(Connection connection, String refDocument, int idDocument, String userMatricule, String userEmail) throws Exception {
+        String sql = "INSERT INTO diffusion_email(ref_document, id_document, matricule_utilisateur, email_utilisateur) VALUES (?, ?, ? , ?)";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, refDocument);
+            statement.setInt(2, idDocument);
+            statement.setString(3, userMatricule);
+            statement.setString(4, userEmail);
+
+            statement.executeUpdate();
+            statement.close();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+
+    /**
+     * Add Document Attached File
+     */
+    public void addDocumentAttachedFile(Connection connection, String refDocument, int idDocument, String fileName, String fileExtension, byte[] fileContent) throws Exception {
+        String sql = "INSERT INTO fichier_document(ref_document, id_document, nom_fichier, extension_fichier, fichier) VALUES (?, ?, ?, ?, ?)";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, refDocument);
+            statement.setInt(2, idDocument);
+            statement.setString(3, fileName);
+            statement.setString(4, fileExtension);
+            statement.setBytes(5, fileContent);
+
+            statement.executeUpdate();
+            statement.close();
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
 

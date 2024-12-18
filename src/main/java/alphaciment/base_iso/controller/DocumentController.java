@@ -1,6 +1,7 @@
 package alphaciment.base_iso.controller;
 
 import java.sql.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import alphaciment.base_iso.service.DocumentService;
 
@@ -41,9 +43,11 @@ public class DocumentController {
         @RequestParam(name = "date_mise_application") Date miseEnApplication,
         @RequestParam String confidentiel,
         @RequestParam(name = "user_matricule") String userMatricule,
-        @RequestParam String data)
+        @RequestParam String data,
+        @RequestParam List<MultipartFile> files)
     {
         System.out.println("Data received: " + data);
+
         if(titre.isEmpty() && type.isEmpty() && confidentiel.isEmpty()) {
             return ResponseEntity.badRequest().body("Veuillez remplir tous les champs");
         }
@@ -52,7 +56,7 @@ public class DocumentController {
         boolean confid = Boolean.parseBoolean(confidentiel);     
 
         try {
-            documentService.addDocumentDraft(titre, idType, miseEnApplication, confid, userMatricule, data);
+            documentService.addDocumentDraft(titre, idType, miseEnApplication, confid, userMatricule, data, files);
             return ResponseEntity.ok("Document enregistré");
         } catch (Exception e) {
             e.printStackTrace();

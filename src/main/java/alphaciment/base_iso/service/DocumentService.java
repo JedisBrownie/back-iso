@@ -2,11 +2,19 @@ package alphaciment.base_iso.service;
 
 import java.sql.Connection;
 import java.sql.Date;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import alphaciment.base_iso.model.connection.IsoDataSource;
+import alphaciment.base_iso.model.connection.RhDataSource;
 import alphaciment.base_iso.model.object.Document;
+import alphaciment.base_iso.model.object.User;
 
 
 
@@ -15,16 +23,106 @@ import alphaciment.base_iso.model.object.Document;
 public class DocumentService {
 
 
-    public int addDocumentDraft(String titre, int type, Date miseEnApplication, boolean confidentiel, String userMatricule, String data) throws Exception {
+    public void addDocumentDraft(String titre, int type, Date miseEnApplication, boolean confidentiel, String userMatricule, String data, List<MultipartFile> files) throws Exception {
         Document document = new Document();
+        Connection isoConnection = IsoDataSource.getConnection();
+        Connection rhConnection = RhDataSource.getConnection();
 
-        try (Connection connection = IsoDataSource.getConnection()) {
-            Document lastDoc = document.addDocumentDraft(connection, titre, type, miseEnApplication, confidentiel, userMatricule);
-            document.addDocumentFields(lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), data);
+        try {
+            Document lastDoc = document.addDocumentDraft(isoConnection, titre, type, miseEnApplication, confidentiel, userMatricule);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<Map<String, ?>> dataList = objectMapper.readValue(data, new TypeReference<List<Map<String, ?>>>() {});
+            dataList.forEach(entry -> {
+                String reference = (String) entry.get("reference");
+                if (!"typeDocument".equals(reference)) {
+                    String champ = (String) entry.get("champ");
+                    String value = (String) entry.get("valeur");
+                    System.out.println(reference + " : " + value);
+                    
+                    if (!champ.equals("champDocumentDeSupport")) {
+                        try {
+                            document.addDocumentFields(isoConnection, lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), reference, value);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }   
+                    }
+
+                    if (champ.equals("processusGlobal") || champ.equals("processusLie")) {
+                        List<Integer> processIdList = (List<Integer>) entry.get("tableau_valeur");
+                        int[] processIdArray = processIdList.stream().mapToInt(Integer::intValue).toArray();
+
+                        for (int i = 0; i < processIdArray.length; i++) {
+                            try {
+                                document.addDocumentProcess(isoConnection, lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), processIdArray[i], champ);
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+
+                    User userForMatricule = null;
+                    if (champ.equals("redacteur") || champ.equals("verificateur") || champ.equals("approbateur")) {
+                        List<Map<String, String>> userList = (List<Map<String, String>>) entry.get("tableau_valeur");
+
+                        for (Map<String, String> user : userList) {
+                            String nom = user.get("nom");
+                            String prenom = user.get("prenom");
+    
+                            try {
+                                userForMatricule = User.getUserByFullName(rhConnection, prenom, nom);
+                                document.addDocumentUserRole(isoConnection, lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), userForMatricule.getUserMatricule(), champ);
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+
+                    if (champ.equals("diffusionEmail")) {
+                        List<Map<String, String>> userList = (List<Map<String, String>>) entry.get("tableau_valeur");
+
+                        for (Map<String, String> user : userList) {
+                            String nom = user.get("nom");
+                            String prenom = user.get("prenom");
+
+                            try {
+                                userForMatricule = User.getUserByFullName(rhConnection, prenom, nom);
+                                document.addEmailDiffusion(isoConnection, lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), userForMatricule.getUserMatricule(), userForMatricule.getUserEmail());
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+
+                    if (champ.equals("documentDeSupport")) {
+                        try {
+                            for (MultipartFile file : files) {
+                                String fileName = file.getOriginalFilename();
+                                String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
+                                byte[] fileContent = file.getBytes();
+                    
+                                document.addDocumentAttachedFile(
+                                    isoConnection,
+                                    lastDoc.getReferenceDocument(),
+                                    lastDoc.getIdDocument(),
+                                    fileName,
+                                    fileExtension,
+                                    fileContent
+                                );
+                            }
+                            // document.addDocumentAttachedFile(rhConnection, reference, type, value, reference, value);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            });
         } catch (Exception e) {
             throw e;
+        } finally {
+            isoConnection.close();
+            rhConnection.close();
         }
-        return 3;
     }
 
 
