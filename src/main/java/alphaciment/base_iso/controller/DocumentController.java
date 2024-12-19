@@ -57,7 +57,7 @@ public class DocumentController {
 
         try {
             documentService.addDocumentDraft(titre, idType, miseEnApplication, confid, userMatricule, data, files);
-            return ResponseEntity.ok("Document enregistré");
+            return ResponseEntity.ok("Brouillon enregistré");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -66,8 +66,25 @@ public class DocumentController {
 
 
     @PostMapping("/add-redaction")
-    public ResponseEntity<?> addRedaction() {
+    public ResponseEntity<?> addRedaction(@RequestParam String titre,
+        @RequestParam String type,
+        @RequestParam(name = "date_mise_application") Date miseEnApplication,
+        @RequestParam String confidentiel,
+        @RequestParam(name = "user_matricule") String userMatricule,
+        @RequestParam String data,
+        @RequestParam List<MultipartFile> files)
+    {
+        System.out.println("Data received: " + data);
+
+        if(titre.isEmpty() && type.isEmpty() && confidentiel.isEmpty()) {
+            return ResponseEntity.badRequest().body("Veuillez remplir tous les champs");
+        }
+
+        int idType = Integer.parseInt(type);
+        boolean confid = Boolean.parseBoolean(confidentiel);     
+
         try {
+            documentService.addDocumentValidation(titre, idType, miseEnApplication, confid, userMatricule, data, files);
             return ResponseEntity.ok("Document enregistré");
         } catch (Exception e) {
             e.printStackTrace();
