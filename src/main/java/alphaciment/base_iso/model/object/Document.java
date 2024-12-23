@@ -1,14 +1,12 @@
 package alphaciment.base_iso.model.object;
 
-import java.io.InputStream;
-import java.net.URL;
 
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -224,12 +222,17 @@ public class Document {
     /**
      * Add Document User Role
      */
-    public void addDocumentUserRole(Connection connection, String refDocument, int idDocument, String userMatricule, String userType) throws Exception {
+    public void addDocumentUserRole(Connection connection, String refDocument, int idDocument, String userMatricule, int documentState, String userType) throws Exception {
         String sql = null;
         switch (userType) {
             case "redacteur":
-                sql = "INSERT INTO redacteur_document(ref_document, id_document, matricule_utilisateur) VALUES (?, ?, ?)";
-                break;
+                if (documentState != 1 && documentState != 3 && documentState != 5) {
+                    sql = "INSERT INTO redacteur_document(ref_document, id_document, matricule_utilisateur, redaction_document_date) VALUES (?, ?, ?, CURRENT_DATE)";
+                    break;
+                } else {
+                    sql = "INSERT INTO redacteur_document(ref_document, id_document, matricule_utilisateur) VALUES (?, ?, ?)";
+                    break;
+                }
             case "verificateur":
                 sql = "INSERT INTO verificateur_document(ref_document, id_document, matricule_utilisateur) VALUES (?, ?, ?)";
                 break;
@@ -292,6 +295,48 @@ public class Document {
             throw e;
         }
     }
+
+
+    /**
+     * Fetch By User Role
+     */
+    // public List<DocumentUserRole> fetchByUserRole(Connection connection, String refDocument, int idDocument, String role) throws Exception {
+    //     String sql = null;
+    //     List<DocumentUserRole> documentUserRoleList = new ArrayList<DocumentUserRole>();
+
+    //     switch (role) {
+    //         case "redacteur":
+    //             sql = "select * from redacteur_document where ref_document = ? and id_document = ?";
+    //             break;
+    //         case "verificateur":
+    //             sql = "select * from verificateur_document where ref_document = ? and id_document = ?";
+    //             break;
+    //         case "approbateur":
+    //             sql = "select * from approbateur_document where ref_document = ? and id_document = ?";
+    //             break;
+    //         default:
+    //             break;
+    //     }
+
+    //     try (PreparedStatement statement = connection.prepareStatement(sql)) {
+    //         statement.setString(1, refDocument);
+    //         statement.setInt(2, idDocument);
+
+    //         ResultSet rs = statement.executeQuery();
+    //         while (rs.next()) {
+    //             documentUserRoleList.add(new DocumentUserRole(
+    //                 rs.getString(1),
+    //                 rs.getInt(2),
+    //                 rs.getString(3),
+    //                 rs.getDate(4)
+    //             ));
+    //         }
+    //     } catch (Exception e) {
+    //         throw e;
+    //     }
+
+    //     return documentUserRoleList;
+    // }
 
 
     // public void addDocument(Connection connection, String titre, int type, int idProcessusLie, boolean confidentiel) throws Exception {

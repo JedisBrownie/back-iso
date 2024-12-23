@@ -19,14 +19,14 @@ import alphaciment.base_iso.service.ViewModelService;
 
 @RestController
 @RequestMapping("/viewdocument")
-@CrossOrigin(origins="*", allowedHeaders="*",methods={RequestMethod.GET})
+@CrossOrigin(origins = "http://10.192.193.81:3000", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST}, allowCredentials = "true")
 public class ViewModelController {
     @Autowired
     ViewModelService viewModelService;
 
     @GetMapping("/valable/{processusLie}")
     public ViewListFromType getDocumentValable(
-        @PathVariable(name = "processusLie") String processusLie
+        @PathVariable String processusLie
     ){
         
         ViewListFromType liste = new ViewListFromType();

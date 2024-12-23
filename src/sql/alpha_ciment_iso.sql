@@ -40,7 +40,7 @@ CREATE  TABLE type_document (
 
 CREATE  TABLE document ( 
 	ref_document         varchar(80)  NOT NULL  ,
-	id_document          integer  NOT NULL  ,
+	id_document          serial  NOT NULL  ,
 	titre                text    ,
 	id_type              integer  NOT NULL  ,
 	id_entete            integer    ,
@@ -354,9 +354,9 @@ INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 1, 'Brouillon', 'Brou
 INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 2, 'Redaction', 'En cours de verification');
 INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 3, 'Invalidation', 'Non valide');
 INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 4, 'Validation', 'En cours d''approbation');
-INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 5, 'D‚sapprobation', 'Non approuve');
+INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 5, 'Desapprobation', 'Non approuve');
 INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 6, 'Approbation', 'Applicable');
-INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 7, 'Demande r‚vision', 'Applicable');
+INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 7, 'Demande revision', 'Applicable');
 INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 8, 'Modifiable', 'Applicable');
 INSERT INTO etat_document( id_etat, nom, status ) VALUES ( 9, 'Archives', 'Archive');
 

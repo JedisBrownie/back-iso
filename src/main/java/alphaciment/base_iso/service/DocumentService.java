@@ -74,7 +74,7 @@ public class DocumentService {
     
                             try {
                                 userForMatricule = User.getUserByFullName(rhConnection, prenom, nom);
-                                document.addDocumentUserRole(isoConnection, lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), userForMatricule.getUserMatricule(), champ);
+                                document.addDocumentUserRole(isoConnection, lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), userForMatricule.getUserMatricule(), 1, champ);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
@@ -179,7 +179,7 @@ public class DocumentService {
     
                             try {
                                 userForMatricule = User.getUserByFullName(rhConnection, prenom, nom);
-                                document.addDocumentUserRole(isoConnection, lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), userForMatricule.getUserMatricule(), champ);
+                                document.addDocumentUserRole(isoConnection, lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), userForMatricule.getUserMatricule(), 2, champ);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
