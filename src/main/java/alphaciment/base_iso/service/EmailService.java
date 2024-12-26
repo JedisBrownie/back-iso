@@ -40,11 +40,12 @@ public class EmailService {
 
     public void mailSendingTest() throws IOException {
         String apiKey = System.getenv("SENDGRID_API_KEY");
+        System.out.println(System.getenv("SENDGRID_API_KEY"));
 
         SendGrid sendGrid = new SendGrid(apiKey);
 
         Email from = new Email("natana.ralambomanana@hotmail.com");
-        String subject = "Hello from SendGrid!";
+        String subject = "Bonjour Nomena!";
         Email to = new Email("natana.ralambomanana@gmail.com");
         Content content = new Content("text/plain", "This is a test email sent using SendGrid.");
         Mail mail = new Mail(from, subject, to, content);
