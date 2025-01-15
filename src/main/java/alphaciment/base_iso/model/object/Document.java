@@ -49,8 +49,15 @@ public class Document {
     /**
      * Add Document Draft
      */
-    public Document addDocumentDraft(Connection connection, String titre, int type, Date miseEnApplication, boolean confidentiel, String userMatricule) throws Exception {
-        String insertDocSql = "INSERT INTO document(titre, id_type, date_creation, date_mise_application, confidentiel) VALUES (?, ?, CURRENT_DATE, ?, ?)";
+    public Document addDocumentDraft(Connection connection, String titre, int type, String miseEnApplication, boolean confidentiel, String userMatricule) throws Exception {
+        String insertDocSql = "";
+
+        if (miseEnApplication == null) {
+            insertDocSql = "INSERT INTO document(titre, id_type, date_creation, confidentiel) VALUES (?, ?, CURRENT_DATE, ?)";   
+        } else {
+            insertDocSql = "INSERT INTO document(titre, id_type, date_creation, date_mise_application, confidentiel) VALUES (?, ?, CURRENT_DATE, ?, ?)";   
+        }
+        
         String lastDocSql = "SELECT ref_document, id_document FROM document WHERE ref_document = ?";
         String docStateSql = "INSERT INTO historique_etat(ref_document, id_document, id_etat, matricule_utilisateur, date_heure_etat) VALUES (?, ?, 1, ?, CURRENT_TIMESTAMP)";
         Document lastDoc = new Document();
@@ -59,10 +66,16 @@ public class Document {
         try {
             connection.setAutoCommit(false);
             try (PreparedStatement docStatement = connection.prepareStatement(insertDocSql, Statement.RETURN_GENERATED_KEYS)) {
-                docStatement.setString(1, titre);
-                docStatement.setInt(2, type);
-                docStatement.setDate(3, miseEnApplication);
-                docStatement.setBoolean(4, confidentiel);
+                if (miseEnApplication == null) {
+                    docStatement.setString(1, titre);
+                    docStatement.setInt(2, type);
+                    docStatement.setBoolean(3, confidentiel);
+                } else {
+                    docStatement.setString(1, titre);
+                    docStatement.setInt(2, type);
+                    docStatement.setDate(3, miseEnApplication);
+                    docStatement.setBoolean(4, confidentiel);
+                }
     
                 docStatement.executeUpdate();
     
@@ -112,19 +125,32 @@ public class Document {
      * Add Document Validation
      */
     public Document addDocumentValidation(Connection connection, String titre, int type, Date miseEnApplication, boolean confidentiel, String userMatricule) throws Exception {
-        String insertDocSql = "INSERT INTO document(titre, id_type, date_creation, date_mise_application, confidentiel) VALUES (?, ?, CURRENT_DATE, ?, ?)";
+        String insertDocSql = "";
+
+        if (miseEnApplication == null) {
+            insertDocSql = "INSERT INTO document(titre, id_type, date_creation, confidentiel) VALUES (?, ?, CURRENT_DATE, ?)";   
+        } else {
+            insertDocSql = "INSERT INTO document(titre, id_type, date_creation, date_mise_application, confidentiel) VALUES (?, ?, CURRENT_DATE, ?, ?)";   
+        }
+        
         String lastDocSql = "SELECT ref_document, id_document FROM document WHERE ref_document = ?";
-        String docStateSql = "INSERT INTO historique_etat(ref_document, id_document, id_etat, matricule_utilisateur, date_heure_etat) VALUES (?, ?, 2, ?, CURRENT_TIMESTAMP)";
+        String docStateSql = "INSERT INTO historique_etat(ref_document, id_document, id_etat, matricule_utilisateur, date_heure_etat) VALUES (?, ?, 1, ?, CURRENT_TIMESTAMP)";
         Document lastDoc = new Document();
         String lastId = null;
 
         try {
             connection.setAutoCommit(false);
             try (PreparedStatement docStatement = connection.prepareStatement(insertDocSql, Statement.RETURN_GENERATED_KEYS)) {
-                docStatement.setString(1, titre);
-                docStatement.setInt(2, type);
-                docStatement.setDate(3, miseEnApplication);
-                docStatement.setBoolean(4, confidentiel);
+                if (miseEnApplication == null) {
+                    docStatement.setString(1, titre);
+                    docStatement.setInt(2, type);
+                    docStatement.setBoolean(3, confidentiel);
+                } else {
+                    docStatement.setString(1, titre);
+                    docStatement.setInt(2, type);
+                    docStatement.setDate(3, miseEnApplication);
+                    docStatement.setBoolean(4, confidentiel);
+                }
     
                 docStatement.executeUpdate();
     

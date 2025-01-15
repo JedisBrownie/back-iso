@@ -26,10 +26,10 @@ public class DocumentService {
     /**
      * Add Document Draft
      */
-    public void addDocumentDraft(String titre, int type, Date miseEnApplication, boolean confidentiel, String userMatricule, String data, List<MultipartFile> files) throws Exception {
+    public void addDocumentDraft(String titre, int type, String miseEnApplication, boolean confidentiel, String userMatricule, String data, List<MultipartFile> files) throws Exception {
         Document document = new Document();
         Connection isoConnection = IsoDataSource.getConnection();
-        Connection rhConnection = RhDataSource.getConnection();
+        Connection hrConnection = RhDataSource.getConnection();
 
         try {
             Document lastDoc = document.addDocumentDraft(isoConnection, titre, type, miseEnApplication, confidentiel, userMatricule);
@@ -73,7 +73,7 @@ public class DocumentService {
                             String prenom = user.get("prenom");
     
                             try {
-                                userForMatricule = User.getUserByFullName(rhConnection, prenom, nom);
+                                userForMatricule = User.getUserByFullName(hrConnection, prenom, nom);
                                 document.addDocumentUserRole(isoConnection, lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), userForMatricule.getUserMatricule(), 1, champ);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
@@ -89,7 +89,7 @@ public class DocumentService {
                             String prenom = user.get("prenom");
 
                             try {
-                                userForMatricule = User.getUserByFullName(rhConnection, prenom, nom);
+                                userForMatricule = User.getUserByFullName(hrConnection, prenom, nom);
                                 document.addEmailDiffusion(isoConnection, lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), userForMatricule.getUserMatricule(), userForMatricule.getUserEmail());
                             } catch (Exception ex) {
                                 ex.printStackTrace();
@@ -123,7 +123,7 @@ public class DocumentService {
             throw e;
         } finally {
             isoConnection.close();
-            rhConnection.close();
+            hrConnection.close();
         }
     }
 
@@ -134,7 +134,7 @@ public class DocumentService {
     public void addDocumentValidation(String titre, int type, Date miseEnApplication, boolean confidentiel, String userMatricule, String data, List<MultipartFile> files) throws Exception {
         Document document = new Document();
         Connection isoConnection = IsoDataSource.getConnection();
-        Connection rhConnection = RhDataSource.getConnection();
+        Connection hrConnection = RhDataSource.getConnection();
 
         try {
             Document lastDoc = document.addDocumentValidation(isoConnection, titre, type, miseEnApplication, confidentiel, userMatricule);
@@ -178,7 +178,7 @@ public class DocumentService {
                             String prenom = user.get("prenom");
     
                             try {
-                                userForMatricule = User.getUserByFullName(rhConnection, prenom, nom);
+                                userForMatricule = User.getUserByFullName(hrConnection, prenom, nom);
                                 document.addDocumentUserRole(isoConnection, lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), userForMatricule.getUserMatricule(), 2, champ);
                             } catch (Exception ex) {
                                 ex.printStackTrace();
@@ -194,7 +194,7 @@ public class DocumentService {
                             String prenom = user.get("prenom");
 
                             try {
-                                userForMatricule = User.getUserByFullName(rhConnection, prenom, nom);
+                                userForMatricule = User.getUserByFullName(hrConnection, prenom, nom);
                                 document.addEmailDiffusion(isoConnection, lastDoc.getReferenceDocument(), lastDoc.getIdDocument(), userForMatricule.getUserMatricule(), userForMatricule.getUserEmail());
                             } catch (Exception ex) {
                                 ex.printStackTrace();
@@ -228,7 +228,7 @@ public class DocumentService {
             throw e;
         } finally {
             isoConnection.close();
-            rhConnection.close();
+            hrConnection.close();
         }
     }
 

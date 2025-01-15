@@ -45,7 +45,7 @@ public class DocumentController {
     public ResponseEntity<?> addDraft(
         @RequestParam String titre,
         @RequestParam String type,
-        @RequestParam(name = "date_mise_application") Date miseEnApplication,
+        @RequestParam(name = "date_mise_application") String miseEnApplication,
         @RequestParam String confidentiel,
         @RequestParam(name = "user_matricule") String userMatricule,
         @RequestParam String data,
