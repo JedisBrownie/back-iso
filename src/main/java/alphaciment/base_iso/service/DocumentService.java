@@ -131,7 +131,7 @@ public class DocumentService {
     /**
      * Add Document Validation
      */
-    public void addDocumentValidation(String titre, int type, Date miseEnApplication, boolean confidentiel, String userMatricule, String data, List<MultipartFile> files) throws Exception {
+    public void addDocumentValidation(String titre, int type, String miseEnApplication, boolean confidentiel, String userMatricule, String data, List<MultipartFile> files) throws Exception {
         Document document = new Document();
         Connection isoConnection = IsoDataSource.getConnection();
         Connection hrConnection = RhDataSource.getConnection();

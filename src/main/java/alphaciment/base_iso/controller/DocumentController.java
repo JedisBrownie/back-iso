@@ -1,6 +1,5 @@
 package alphaciment.base_iso.controller;
 
-import java.sql.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,9 +70,10 @@ public class DocumentController {
 
 
     @PostMapping("/add-redaction")
-    public ResponseEntity<?> addRedaction(@RequestParam String titre,
+    public ResponseEntity<?> addRedaction(
+        @RequestParam String titre,
         @RequestParam String type,
-        @RequestParam(name = "date_mise_application") Date miseEnApplication,
+        @RequestParam(name = "date_mise_application") String miseEnApplication,
         @RequestParam String confidentiel,
         @RequestParam(name = "user_matricule") String userMatricule,
         @RequestParam String data,
