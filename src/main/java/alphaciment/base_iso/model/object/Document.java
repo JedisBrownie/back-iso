@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -304,6 +305,22 @@ public class Document {
 
 
     /**
+     * Fetch Documents Last State
+     */
+
+
+    /**
+     * Fetch By User
+     */
+    // public List<Document> fetchDocsForGivenUser(Connection connection, String userMatricule, int docType) {
+    //     String sql = "SELECT * FROM v_doc_state WHERE matricule_utilisateur = ? AND id_etat";
+    //     List<Document> documentList = new ArrayList<Document>();
+
+    //     return documentList;
+    // }
+
+
+    /**
      * Fetch By User Role
      */
     // public List<DocumentUserRole> fetchByUserRole(Connection connection, String refDocument, int idDocument, String role) throws Exception {
@@ -342,102 +359,5 @@ public class Document {
     //     }
 
     //     return documentUserRoleList;
-    // }
-
-
-    // public void addDocument(Connection connection, String titre, int type, int idProcessusLie, boolean confidentiel) throws Exception {
-
-    //     String sql = "INSERT INTO DOCUMENT(titre, id_type, confidentiel, date_creation, id_entete) VALUES (?, ?, ?, CURRENT_DATE, ?)";
-
-    //     try(PreparedStatement statement = connection.prepareStatement(sql) ){
-    //         statement.setString(1,titre);
-    //         statement.setInt(2, type);
-    //         statement.setBoolean(3, confidentiel);
-    //         statement.setInt(4, idProcessusLie);
-
-    //         statement.executeUpdate();
-    //         statement.close();
-    //     } catch(Exception e) {
-    //         throw e;
-    //     } finally {
-    //         connection.close();
-    //     }
-    // }
-
-    // public Document addDocument(String titre, int idTypeDocument, int idProcessusLie, boolean confidentiel, int idApprobateur, int idVerificateur, Connection connection) throws Exception {
-    //     String sql = "INSERT INTO DOCUMENT(titre, id_type, id_entete, date_creation, confidentiel, id_approbateur, id_validateur) " +
-    //                 "VALUES(?, ?, ?, CURRENT_DATE, ?, ?, ?) RETURNING ref_document,id_document";
-        
-    //     PreparedStatement statement = null;
-    //     ResultSet rs = null;
-    //     Document document = new Document();
-
-    //     try {
-    //         statement = connection.prepareStatement(sql);
-
-    //         statement.setString(1, titre);
-    //         statement.setInt(2, idTypeDocument);
-    //         statement.setInt(3, idProcessusLie);
-    //         statement.setBoolean(4, confidentiel);
-    //         statement.setInt(5, idApprobateur);
-    //         statement.setInt(6, idVerificateur);
-
-    //         rs = statement.executeQuery();
-            
-    //         while(rs.next()) {
-    //             String ref = rs.getString("ref_document");
-    //             int idDoc = rs.getInt("id_document");
-    //             document.setReferenceDocument(ref);
-    //             document.setIdDocument(idDoc);
-    //         }
-    //     } catch(Exception e) {
-    //         throw e;   
-    //     } finally {
-    //         if(statement != null) {
-    //             statement.close();
-    //         }
-    //         if(rs != null) {
-    //             rs.close();
-    //         }
-    //     }
-    //     return document;
-    // }
-
-
-    // public Document addEnregistrement(String titre, int idTypeDocument, int idProcessusLie, boolean confidentiel, Connection connection) throws Exception {
-    //     String sql = "INSERT INTO DOCUMENT(titre, id_type, id_entete, date_creation, confidentiel) " +
-    //                 "VALUES(?, ?, ?, CURRENT_DATE, ?) RETURNING ref_document,id_document";
-        
-    //     PreparedStatement statement = null;
-    //     ResultSet rs = null;
-    //     Document document = new Document();
-    //     try{
-    //         statement = connection.prepareStatement(sql);
-
-    //         statement.setString(1, titre);
-    //         statement.setInt(2, idTypeDocument);
-    //         statement.setInt(3, idProcessusLie);
-    //         statement.setBoolean(4, confidentiel);
-            
-    //         rs = statement.executeQuery();
-            
-    //         while(rs.next()){
-    //             String ref = rs.getString("ref_document");
-    //             int idDoc = rs.getInt("id_document");
-    //             document.setReferenceDocument(ref);
-    //             document.setIdDocument(idDoc);
-    //         }
-
-    //     }catch(Exception e){
-    //         throw e;   
-    //     }finally{
-    //         if(statement != null){
-    //             statement.close();
-    //         }
-    //         if(rs != null){
-    //             rs.close();
-    //         }
-    //     }
-    //     return document;
     // }
 }
