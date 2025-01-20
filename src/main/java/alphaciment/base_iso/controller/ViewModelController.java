@@ -19,7 +19,7 @@ import alphaciment.base_iso.service.ViewModelService;
 
 @RestController
 @RequestMapping("/viewdocument")
-@CrossOrigin(origins = "http://10.192.193.81:3000", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST}, allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST}, allowCredentials = "true")
 public class ViewModelController {
     @Autowired
     ViewModelService viewModelService;

@@ -2,6 +2,7 @@ package alphaciment.base_iso.service;
 
 import java.sql.Connection;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import alphaciment.base_iso.model.connection.IsoDataSource;
 import alphaciment.base_iso.model.connection.RhDataSource;
 import alphaciment.base_iso.model.object.Document;
 import alphaciment.base_iso.model.object.User;
+import alphaciment.base_iso.model.viewmodel.ViewEtatDocument;
 
 
 
@@ -230,6 +232,25 @@ public class DocumentService {
             isoConnection.close();
             hrConnection.close();
         }
+    }
+
+
+    /**
+     * List User Documents
+     */
+    public List<ViewEtatDocument> listUserDocuments(int documentState, String userMatricule) throws Exception {
+        Connection connection = IsoDataSource.getConnection();
+        List<ViewEtatDocument> userDocumentsList = new ArrayList<ViewEtatDocument>();
+
+        try {
+            userDocumentsList = new ViewEtatDocument().getDocumentsStateForUser(connection, documentState, userMatricule);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            connection.close();
+        }
+
+        return userDocumentsList;
     }
 
 

@@ -18,7 +18,7 @@ import alphaciment.base_iso.service.ViewModelService;
 
 @RestController
 @RequestMapping("/processus")
-@CrossOrigin(origins="http://10.192.193.81:3000", allowedHeaders="*",methods={RequestMethod.GET})
+@CrossOrigin(origins="http://localhost:3000", allowedHeaders="*",methods={RequestMethod.GET}, allowCredentials = "true")
 
 public class ProcessusController {
 
@@ -28,6 +28,7 @@ public class ProcessusController {
     @Autowired
     ViewModelService viewModelService;
 
+    
     @GetMapping("/global/all")
     public List<ProcessusGlobal> getAllProcessusGlobal(){
         List<ProcessusGlobal> liste = new ArrayList<>();
