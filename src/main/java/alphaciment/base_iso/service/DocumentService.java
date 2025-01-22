@@ -16,7 +16,7 @@ import alphaciment.base_iso.model.connection.IsoDataSource;
 import alphaciment.base_iso.model.connection.RhDataSource;
 import alphaciment.base_iso.model.object.Document;
 import alphaciment.base_iso.model.object.User;
-import alphaciment.base_iso.model.viewmodel.ViewEtatDocument;
+import alphaciment.base_iso.model.viewmodel.ViewMyDocument;
 
 
 
@@ -238,12 +238,12 @@ public class DocumentService {
     /**
      * List User Documents
      */
-    public List<ViewEtatDocument> listUserDocuments(int documentState, String userMatricule) throws Exception {
+    public List<ViewMyDocument> listUserDocuments(int documentState, String userMatricule) throws Exception {
         Connection connection = IsoDataSource.getConnection();
-        List<ViewEtatDocument> userDocumentsList = new ArrayList<ViewEtatDocument>();
+        List<ViewMyDocument> userDocumentsList = new ArrayList<ViewMyDocument>();
 
         try {
-            userDocumentsList = new ViewEtatDocument().getDocumentsStateForUser(connection, documentState, userMatricule);
+            userDocumentsList = new ViewMyDocument().getDocumentsStateForUser(connection, documentState, userMatricule);
         } catch (Exception e) {
             throw e;
         } finally {

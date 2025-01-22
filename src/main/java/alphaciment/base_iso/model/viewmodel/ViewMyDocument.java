@@ -1,7 +1,6 @@
 package alphaciment.base_iso.model.viewmodel;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -23,7 +22,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ViewEtatDocument {
+public class ViewMyDocument {
     /**
      * Fields
      */
@@ -37,10 +36,7 @@ public class ViewEtatDocument {
     Timestamp dateHeureEtat;
 
 
-    /**
-     * Constructor
-     */
-
+     
 
     /**
      * Methods
@@ -48,8 +44,8 @@ public class ViewEtatDocument {
     /**
      * Get Documents State For User
      */
-    public List<ViewEtatDocument> getDocumentsStateForUser(Connection connection, int state, String userMatricule) throws Exception {
-        List<ViewEtatDocument> documentStateList = new ArrayList<ViewEtatDocument>();
+    public List<ViewMyDocument> getDocumentsStateForUser(Connection connection, int state, String userMatricule) throws Exception {
+        List<ViewMyDocument> documentStateList = new ArrayList<>();
         String sql = "select * from v_document_state where id_etat = ? and matricule_utilisateur = ?";
         
         try(PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -58,7 +54,7 @@ public class ViewEtatDocument {
 
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                documentStateList.add(new ViewEtatDocument(
+                documentStateList.add(new ViewMyDocument(
                     rs.getString(1), 
                     rs.getString(2), 
                     rs.getInt(3), 
@@ -75,4 +71,9 @@ public class ViewEtatDocument {
 
         return documentStateList;
     }
+
+
+    /**
+     * Get Documents To Be Verified By User
+     */
 }

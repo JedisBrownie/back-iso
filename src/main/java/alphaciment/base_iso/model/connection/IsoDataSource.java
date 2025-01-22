@@ -20,8 +20,8 @@ public class IsoDataSource {
     private static final BasicDataSource isods = new BasicDataSource();
 
     static{
-        isods.setUrl("jdbc:postgresql://localhost:5432/alpha_ciment_iso");
-        // isods.setUrl("jdbc:postgresql://10.192.193.81:5432/alpha_ciment_iso");
+        // isods.setUrl("jdbc:postgresql://localhost:5432/alpha_ciment_iso");
+        isods.setUrl("jdbc:postgresql://10.192.193.81:5432/alpha_ciment_iso");
         isods.setUsername("postgres");
         
         isods.setPassword("root");

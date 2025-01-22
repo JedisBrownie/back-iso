@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import alphaciment.base_iso.model.viewmodel.ViewEtatDocument;
+import alphaciment.base_iso.model.viewmodel.ViewMyDocument;
 import alphaciment.base_iso.service.DocumentService;
 import alphaciment.base_iso.service.EmailService;
 
@@ -25,7 +24,7 @@ import alphaciment.base_iso.service.EmailService;
 
 @RestController
 @RequestMapping("/document")
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:3000", "http://10.192.193.81:3000"}, allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST}, allowCredentials = "true")
 public class DocumentController {
 
     /**
@@ -102,10 +101,10 @@ public class DocumentController {
 
 
     @GetMapping("/get")
-    public List<ViewEtatDocument> getUserDocuments(
+    public List<ViewMyDocument> getUserDocuments(
             @RequestParam String userMatricule,
             @RequestParam String documentState) {
-        List<ViewEtatDocument> userDocument = new ArrayList<>();
+        List<ViewMyDocument> userDocument = new ArrayList<>();
 
         try {
             userDocument = documentService.listUserDocuments(Integer.parseInt(documentState), userMatricule);
