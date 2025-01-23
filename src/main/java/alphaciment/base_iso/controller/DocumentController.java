@@ -102,12 +102,13 @@ public class DocumentController {
 
     @GetMapping("/get")
     public List<ViewMyDocument> getUserDocuments(
+            @RequestParam String part,
             @RequestParam String userMatricule,
             @RequestParam String documentState) {
         List<ViewMyDocument> userDocument = new ArrayList<>();
 
         try {
-            userDocument = documentService.listUserDocuments(Integer.parseInt(documentState), userMatricule);
+            userDocument = documentService.listUserDocuments(Integer.parseInt(part), Integer.parseInt(documentState), userMatricule);
         } catch (Exception e) {
             e.printStackTrace();
         }

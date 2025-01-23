@@ -28,16 +28,16 @@ ORDER BY ref_document, date_heure_etat DESC;
 
 
 -- Views --
-CREATE OR REPLACE VIEW v_doc_state AS
-SELECT 
-d.*, rd.matricule_utilisateur, he.id_etat, date_heure_etat
-FROM document d
-JOIN redacteur_document rd ON rd.ref_document = d.ref_document
-JOIN historique_etat he ON he.ref_document = d.ref_document;
-
 CREATE OR REPLACE VIEW v_document_state AS
-SELECT DISTINCT ON (he.ref_document) he.ref_document, titre, d.id_type, td.nom, he.matricule_utilisateur, he.id_etat, ed.status, date_heure_etat::date
+SELECT DISTINCT ON (he.ref_document) he.ref_document, titre, d.id_type, td.nom, he.id_etat, ed.status, date_heure_etat::date
 FROM historique_etat he
 JOIN document d ON he.ref_document = d.ref_document
 JOIN type_document td ON d.id_type = td.id_type
 JOIN etat_document ed ON he.id_etat = ed.id_etat;
+
+
+CREATE OR REPLACE VIEW v_document_concerned_users AS
+SELECT v_ds.*, vd.matricule_utilisateur as verificateur, ad.matricule_utilisateur as approbateur
+FROM v_document_state v_ds
+JOIN verificateur_document vd ON vd.ref_document = v_ds.ref_document
+JOIN approbateur_document ad ON ad.ref_document = v_ds.ref_document;

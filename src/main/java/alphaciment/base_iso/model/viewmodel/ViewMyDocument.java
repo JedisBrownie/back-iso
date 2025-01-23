@@ -30,7 +30,6 @@ public class ViewMyDocument {
     String titre;
     int idType;
     String nom;
-    String matriculeUtilisateur;
     int idEtat;
     String status;
     Timestamp dateHeureEtat;
@@ -42,12 +41,26 @@ public class ViewMyDocument {
      * Methods
      */
     /**
-     * Get Documents State For User
+     * Get Documents For User
      */
-    public List<ViewMyDocument> getDocumentsStateForUser(Connection connection, int state, String userMatricule) throws Exception {
+    public List<ViewMyDocument> getDocumentsForUser(Connection connection, int part, int state, String userMatricule) throws Exception {
         List<ViewMyDocument> documentStateList = new ArrayList<>();
-        String sql = "select * from v_document_state where id_etat = ? and matricule_utilisateur = ?";
+        String sql = "select v_document_state.*, matricule_utilisateur as redacteur from v_document_state join redacteur_document on v_document_state.ref_document = redacteur_document.ref_document where id_etat = ? and matricule_utilisateur = ?";
         
+        switch (part) {
+            case 1:
+                sql = "select v_document_state.*, matricule_utilisateur as redacteur from v_document_state join redacteur_document on v_document_state.ref_document = redacteur_document.ref_document where id_etat = ? and matricule_utilisateur = ?";
+                break;
+            case 2:
+                sql = "select v_document_state.*, matricule_utilisateur as verificateur from v_document_state join verificateur_document on v_document_state.ref_document = verificateur_document.ref_document where id_etat = ? and matricule_utilisateur = ?";
+                break;
+            case 3:
+                sql = "select v_document_state.*, matricule_utilisateur as approbateur from v_document_state join approbateur_document on v_document_state.ref_document = approbateur_document.ref_document where id_etat = ? and matricule_utilisateur = ?";
+                break;
+            default:
+                throw new AssertionError();
+        }
+
         try(PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, state);
             statement.setString(2, userMatricule);
@@ -57,12 +70,11 @@ public class ViewMyDocument {
                 documentStateList.add(new ViewMyDocument(
                     rs.getString(1), 
                     rs.getString(2), 
-                    rs.getInt(3), 
-                    rs.getString(4), 
-                    rs.getString(5), 
-                    rs.getInt(6), 
-                    rs.getString(7),
-                    rs.getTimestamp(8)
+                    rs.getInt(3),
+                    rs.getString(4),
+                    rs.getInt(5),
+                    rs.getString(6),
+                    rs.getTimestamp(7)
                 ));
             }
         } catch (Exception e) {
@@ -74,6 +86,32 @@ public class ViewMyDocument {
 
 
     /**
-     * Get Documents To Be Verified By User
+     * Get Documents To Be Handled By User
      */
+    // public List<ViewMyDocument> getDocumentsToBeHandledByUser(Connection connection, int state, String userMatricule) throws Exception {
+    //     List<ViewMyDocument> documentStateList = new ArrayList<>();
+    //     String sql = "select v_document_state.*, matricule_utilisateur as verificateur from v_document_state join verificateur_document on v_document_state.ref_document = verificateur_document.ref_document where id_etat = ? and matricule_utilisateur = ?";
+
+    //     try(PreparedStatement statement = connection.prepareStatement(sql)) {
+    //         statement.setInt(1, state);
+    //         statement.setString(2, userMatricule);
+
+    //         ResultSet rs = statement.executeQuery();
+    //         while (rs.next()) {
+    //             documentStateList.add(new ViewMyDocument(
+    //                 rs.getString(1), 
+    //                 rs.getString(2), 
+    //                 rs.getInt(3),
+    //                 rs.getString(4),
+    //                 rs.getInt(5),
+    //                 rs.getString(6),
+    //                 rs.getTimestamp(7)
+    //             ));
+    //         }
+    //     } catch (Exception e) {
+    //         throw e;
+    //     }
+        
+    //     return  documentStateList;
+    // }
 }
