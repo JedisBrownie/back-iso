@@ -43,23 +43,9 @@ public class ViewMyDocument {
     /**
      * Get Documents For User
      */
-    public List<ViewMyDocument> getDocumentsForUser(Connection connection, int part, int state, String userMatricule) throws Exception {
+    public List<ViewMyDocument> getDocumentsForUser(Connection connection, int state, String userMatricule) throws Exception {
         List<ViewMyDocument> documentStateList = new ArrayList<>();
         String sql = "select v_document_state.*, matricule_utilisateur as redacteur from v_document_state join redacteur_document on v_document_state.ref_document = redacteur_document.ref_document where id_etat = ? and matricule_utilisateur = ?";
-        
-        switch (part) {
-            case 1:
-                sql = "select v_document_state.*, matricule_utilisateur as redacteur from v_document_state join redacteur_document on v_document_state.ref_document = redacteur_document.ref_document where id_etat = ? and matricule_utilisateur = ?";
-                break;
-            case 2:
-                sql = "select v_document_state.*, matricule_utilisateur as verificateur from v_document_state join verificateur_document on v_document_state.ref_document = verificateur_document.ref_document where id_etat = ? and matricule_utilisateur = ?";
-                break;
-            case 3:
-                sql = "select v_document_state.*, matricule_utilisateur as approbateur from v_document_state join approbateur_document on v_document_state.ref_document = approbateur_document.ref_document where id_etat = ? and matricule_utilisateur = ?";
-                break;
-            default:
-                throw new AssertionError();
-        }
 
         try(PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, state);
@@ -77,6 +63,23 @@ public class ViewMyDocument {
                     rs.getTimestamp(7)
                 ));
             }
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return documentStateList;
+    }
+
+
+    /**
+     * Get Documents Where User Is Checker
+     */
+    public List<ViewMyDocument> getDocumentsWhereUserIsChecker(Connection connection, String userMatricule) throws Exception {
+        List<ViewMyDocument> documentStateList = new ArrayList<>();
+        String sql = "select v_ds.*, matricule_utilisateur from v_document_state v_ds join verificateur_document vd on vd.ref_document = v_ds.ref_document where id_etat = 2 and user_matricule = ?";
+
+        try(PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, userMatricule);
         } catch (Exception e) {
             throw e;
         }

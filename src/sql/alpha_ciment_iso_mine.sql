@@ -25,6 +25,56 @@ JOIN etat_document ed ON he.id_etat = ed.id_etat
 ORDER BY ref_document, date_heure_etat DESC;
 
 
+/**
+* Group concerns the concerned users by documents
+*/
+SELECT
+    v_ds.ref_document, 
+    v_ds.titre, 
+    v_ds.id_type, 
+    v_ds.nom, 
+    v_ds.id_etat, 
+    v_ds.status, 
+    v_ds.date_heure_etat,
+    STRING_AGG(DISTINCT rd.matricule_utilisateur::TEXT, ', ') AS redacteurs,
+    STRING_AGG(DISTINCT vd.matricule_utilisateur::TEXT, ', ') AS verificateurs,
+    STRING_AGG(DISTINCT ad.matricule_utilisateur::TEXT, ', ') AS approbateurs
+FROM
+    v_document_state v_ds
+JOIN
+    redacteur_document rd ON rd.ref_document = v_ds.ref_document
+JOIN
+    verificateur_document vd ON vd.ref_document = v_ds.ref_document
+JOIN
+    approbateur_document ad ON ad.ref_document = v_ds.ref_document
+GROUP BY
+    v_ds.ref_document, v_ds.titre, v_ds.id_type, v_ds.nom, v_ds.id_etat, v_ds.status, v_ds.date_heure_etat;
+
+
+/**
+* Get documents where "verificateurs"
+*/
+SELECT * 
+FROM v_document_concerned_users
+WHERE '90511' = ANY(string_to_array(verificateurs, ', '));
+
+
+/**
+* Group documents by "redacteurs"
+*/
+SELECT 
+    redacteur, 
+    STRING_AGG(ref_document, ', ') AS documents
+FROM (
+    SELECT 
+        ref_document, 
+        UNNEST(STRING_TO_ARRAY(redacteurs, ', ')) AS redacteur
+    FROM v_document_concerned_users
+) AS expanded
+GROUP BY redacteur
+ORDER BY redacteur;
+
+
 
 
 -- Views --
@@ -37,7 +87,39 @@ JOIN etat_document ed ON he.id_etat = ed.id_etat;
 
 
 CREATE OR REPLACE VIEW v_document_concerned_users AS
-SELECT v_ds.*, vd.matricule_utilisateur as verificateur, ad.matricule_utilisateur as approbateur
-FROM v_document_state v_ds
-JOIN verificateur_document vd ON vd.ref_document = v_ds.ref_document
-JOIN approbateur_document ad ON ad.ref_document = v_ds.ref_document;
+SELECT
+    v_ds.ref_document, 
+    v_ds.titre, 
+    v_ds.id_type, 
+    v_ds.nom, 
+    v_ds.id_etat, 
+    v_ds.status, 
+    v_ds.date_heure_etat,
+    STRING_AGG(DISTINCT rd.matricule_utilisateur::TEXT, ', ') AS redacteurs,
+    STRING_AGG(DISTINCT vd.matricule_utilisateur::TEXT, ', ') AS verificateurs,
+    STRING_AGG(DISTINCT ad.matricule_utilisateur::TEXT, ', ') AS approbateurs
+FROM
+    v_document_state v_ds
+JOIN
+    redacteur_document rd ON rd.ref_document = v_ds.ref_document
+JOIN
+    verificateur_document vd ON vd.ref_document = v_ds.ref_document
+JOIN
+    approbateur_document ad ON ad.ref_document = v_ds.ref_document
+GROUP BY
+    v_ds.ref_document, v_ds.titre, v_ds.id_type, v_ds.nom, v_ds.id_etat, v_ds.status, v_ds.date_heure_etat;
+
+
+
+CREATE OR REPLACE VIEW v_document_redactors as
+SELECT 
+    redacteur, 
+    STRING_AGG(ref_document, ', ') AS documents
+FROM (
+    SELECT 
+        ref_document, 
+        UNNEST(STRING_TO_ARRAY(redacteurs, ', ')) AS redacteur
+    FROM v_document_concerned_users
+) AS expanded
+GROUP BY redacteur
+ORDER BY redacteur;

@@ -238,12 +238,12 @@ public class DocumentService {
     /**
      * List User Documents
      */
-    public List<ViewMyDocument> listUserDocuments(int part, int documentState, String userMatricule) throws Exception {
+    public List<ViewMyDocument> listUserDocuments(int documentState, String userMatricule) throws Exception {
         Connection connection = IsoDataSource.getConnection();
         List<ViewMyDocument> userDocumentsList = new ArrayList<ViewMyDocument>();
 
         try {
-            userDocumentsList = new ViewMyDocument().getDocumentsForUser(connection, part, documentState, userMatricule);
+            userDocumentsList = new ViewMyDocument().getDocumentsForUser(connection, documentState, userMatricule);
         } catch (Exception e) {
             throw e;
         } finally {
