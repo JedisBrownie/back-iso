@@ -2,6 +2,7 @@ package alphaciment.base_iso.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -113,6 +114,51 @@ public class DocumentController {
         }
 
         return userDocument;
+    }
+
+
+    @GetMapping("/get/by-ref")
+    public ViewMyDocument getDocumentWhereRef(@RequestParam String refDocument) {
+        ViewMyDocument document = null;
+
+        try {
+            document = documentService.getDocumentByRef(refDocument);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return document;
+    }
+    
+
+
+    @GetMapping("/to-verify")
+    public List<Map<String, Object>> getDocumensToBeVerified(
+        @RequestParam String userMatricule) {
+        List<Map<String, Object>> documentsToBeVerified = new ArrayList<>();
+
+        try {
+            documentsToBeVerified = documentService.listDocumentToCheck(userMatricule);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return documentsToBeVerified;
+    }
+
+
+    @GetMapping("/to-approve")
+    public List<Map<String, Object>> getDocumensToBeApproved(
+        @RequestParam String userMatricule) {
+        List<Map<String, Object>> documentsToBeApproved = new ArrayList<>();
+
+        try {
+            documentsToBeApproved = documentService.listDocumentToApprove(userMatricule);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return documentsToBeApproved;
     }
 
 

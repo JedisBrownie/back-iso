@@ -1,7 +1,6 @@
 package alphaciment.base_iso.service;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -251,6 +250,63 @@ public class DocumentService {
         }
 
         return userDocumentsList;
+    }
+
+
+    /**
+     * Get Document By Ref
+     */
+    public ViewMyDocument getDocumentByRef(String refDocument) throws Exception {
+        Connection connection = IsoDataSource.getConnection();
+        ViewMyDocument document = null;
+
+        try {
+            document = new ViewMyDocument().getDocumentWhereDocumentRef(connection, refDocument);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            connection.close();
+        }
+
+        return document;
+    }
+
+
+    /**
+     * List Documents To Check
+     */
+    public List<Map<String, Object>> listDocumentToCheck(String userMatricule) throws Exception {
+        Connection connection = IsoDataSource.getConnection();
+        List<Map<String, Object>> documentToCheck = new ArrayList<>();
+
+        try {
+            documentToCheck = new ViewMyDocument().getDocumentsWhereUserIsChecker(connection, userMatricule);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            connection.close();
+        }
+
+        return documentToCheck;
+    }
+
+
+    /**
+     * List Documents To Approve
+     */
+    public List<Map<String, Object>> listDocumentToApprove(String userMatricule) throws Exception {
+        Connection connection = IsoDataSource.getConnection();
+        List<Map<String, Object>> documentToApprove = new ArrayList<>();
+
+        try {
+            documentToApprove = new ViewMyDocument().getDocumentsWhereUserIsApprover(connection, userMatricule);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            connection.close();
+        }
+
+        return documentToApprove;
     }
 
 

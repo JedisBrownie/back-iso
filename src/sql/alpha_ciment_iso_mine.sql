@@ -75,6 +75,24 @@ GROUP BY redacteur
 ORDER BY redacteur;
 
 
+/**
+* Group authors and their documents by the verificator
+*/
+SELECT
+    redacteur,
+    STRING_AGG(ref_document, ', ') AS documents
+FROM (
+    SELECT
+        ref_document,
+        UNNEST(STRING_TO_ARRAY(redacteurs, ', ')) AS redacteur
+    FROM v_document_concerned_users
+    WHERE id_etat = 2 AND '10540' = ANY(STRING_TO_ARRAY(verificateurs, ', '))
+) AS expanded
+GROUP BY redacteur
+ORDER BY redacteur;
+
+
+
 
 
 -- Views --

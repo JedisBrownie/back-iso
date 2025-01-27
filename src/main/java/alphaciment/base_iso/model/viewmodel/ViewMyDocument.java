@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -72,19 +74,90 @@ public class ViewMyDocument {
 
 
     /**
-     * Get Documents Where User Is Checker
+     * Get Document Where Document Ref
      */
-    public List<ViewMyDocument> getDocumentsWhereUserIsChecker(Connection connection, String userMatricule) throws Exception {
-        List<ViewMyDocument> documentStateList = new ArrayList<>();
-        String sql = "select v_ds.*, matricule_utilisateur from v_document_state v_ds join verificateur_document vd on vd.ref_document = v_ds.ref_document where id_etat = 2 and user_matricule = ?";
+    public ViewMyDocument getDocumentWhereDocumentRef(Connection connection, String refDocument) throws Exception {
+        ViewMyDocument viewMyDocument = new ViewMyDocument();
+        String sql = "select * from v_document_state where ref_document = ?";
 
         try(PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, userMatricule);
+            statement.setString(1, refDocument);
+
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                viewMyDocument.setRefDocument(rs.getString("ref_document"));
+                viewMyDocument.setTitre(rs.getString("titre"));
+                viewMyDocument.setIdType(rs.getInt("id_type"));
+                viewMyDocument.setNom(rs.getString("nom"));
+                viewMyDocument.setIdEtat(rs.getInt("id_etat"));
+                viewMyDocument.setStatus(rs.getString("status"));
+                viewMyDocument.setDateHeureEtat(rs.getTimestamp("date_heure_etat"));
+            }
         } catch (Exception e) {
             throw e;
         }
 
-        return documentStateList;
+        return viewMyDocument;
+    }
+
+
+    /**
+     * Get Documents Where User Is Checker
+     */
+    public List<Map<String, Object>> getDocumentsWhereUserIsChecker(Connection connection, String userMatricule) throws Exception {
+        List<Map<String, Object>> documentList = new ArrayList<>();
+        String sql = "select redacteur, STRING_AGG(ref_document, ', ') as documents from (select ref_document, UNNEST(STRING_TO_ARRAY(redacteurs, ', ')) as redacteur from v_document_concerned_users where id_etat = 2 and ? = ANY(STRING_TO_ARRAY(verificateurs, ', '))) as expanded group by redacteur order by redacteur";
+
+        try(PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, userMatricule);
+            
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    String redacteur = rs.getString("redacteur");
+                    String documents = rs.getString("documents");
+
+                    Map<String, Object> documentToCheck = new HashMap<>();
+                    documentToCheck.put("matricule", redacteur);
+                    documentToCheck.put("documents", documents != null ? documents.split(", ") : new String[]{});
+
+                    documentList.add(documentToCheck);
+                }
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return documentList;
+    }
+
+
+    /**
+     * Get Documents Where User Is Approver
+     */
+    public List<Map<String, Object>> getDocumentsWhereUserIsApprover(Connection connection, String userMatricule) throws Exception {
+        List<Map<String, Object>> documentList = new ArrayList<>();
+        String sql = "select redacteur, STRING_AGG(ref_document, ', ') as documents from (select ref_document, UNNEST(STRING_TO_ARRAY(redacteurs, ', ')) as redacteur from v_document_concerned_users where id_etat = 4 and ? = ANY(STRING_TO_ARRAY(approbateurs, ', '))) as expanded group by redacteur order by redacteur";
+
+        try(PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, userMatricule);
+            
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    String redacteur = rs.getString("redacteur");
+                    String documents = rs.getString("documents");
+
+                    Map<String, Object> documentToCheck = new HashMap<>();
+                    documentToCheck.put("matricule", redacteur);
+                    documentToCheck.put("documents", documents != null ? documents.split(", ") : new String[]{});
+
+                    documentList.add(documentToCheck);
+                }
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return documentList;
     }
 
 
