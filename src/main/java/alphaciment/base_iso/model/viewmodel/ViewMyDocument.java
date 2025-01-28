@@ -32,13 +32,13 @@ public class ViewMyDocument {
     String titre;
     int idType;
     String nom;
+    String matriculeUtilisateur;
     int idEtat;
     String status;
     Timestamp dateHeureEtat;
 
 
      
-
     /**
      * Methods
      */
@@ -47,7 +47,7 @@ public class ViewMyDocument {
      */
     public List<ViewMyDocument> getDocumentsForUser(Connection connection, int state, String userMatricule) throws Exception {
         List<ViewMyDocument> documentStateList = new ArrayList<>();
-        String sql = "select v_document_state.*, matricule_utilisateur as redacteur from v_document_state join redacteur_document on v_document_state.ref_document = redacteur_document.ref_document where id_etat = ? and matricule_utilisateur = ?";
+        String sql = "select v_document_state.*, redacteur_document.matricule_utilisateur as redacteur from v_document_state join redacteur_document on v_document_state.ref_document = redacteur_document.ref_document where id_etat = ? and redacteur_document.matricule_utilisateur = ?";
 
         try(PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, state);
@@ -60,9 +60,10 @@ public class ViewMyDocument {
                     rs.getString(2), 
                     rs.getInt(3),
                     rs.getString(4),
-                    rs.getInt(5),
-                    rs.getString(6),
-                    rs.getTimestamp(7)
+                    rs.getString(5),
+                    rs.getInt(6),
+                    rs.getString(7),
+                    rs.getTimestamp(8)
                 ));
             }
         } catch (Exception e) {
