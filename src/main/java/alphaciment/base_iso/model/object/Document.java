@@ -7,7 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -295,6 +294,34 @@ public class Document {
             statement.setString(3, fileName);
             statement.setString(4, fileExtension);
             statement.setBytes(5, fileContent);
+
+            statement.executeUpdate();
+            statement.close();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+
+    /**
+     * Get Document Fileds By Ref
+     */
+    public void getDocumentFieldsByRef(Connection connection) {
+        String sql = "select * from ";
+    }
+
+
+    /**
+     * Update Document State
+     */
+    public void updateDocumentState(Connection connection, String refDocument, int idDocument, int idEtat, String matriculeUtilisateur) throws Exception {
+        String sql = "INSERT INTO historique_etat(ref_document, id_document, id_etat, matricule_utilisateur, date_heure_etat) VALUES (?, ?, ?, ?, current_timestamp)";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, refDocument);
+            statement.setInt(2, idDocument);
+            statement.setInt(3, idEtat);
+            statement.setString(4, matriculeUtilisateur);
 
             statement.executeUpdate();
             statement.close();
